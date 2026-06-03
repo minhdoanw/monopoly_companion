@@ -868,9 +868,9 @@ const Monopoly = (() => {
   }
 
   // ─── PLAYER POSITION & GAMEPLAY MECHANICS ────────────────────────────────────
-  function rollDice() {
-    const d1 = Math.floor(Math.random() * 6) + 1;
-    const d2 = Math.floor(Math.random() * 6) + 1;
+  function rollDice(overrideD1, overrideD2) {
+    const d1 = (overrideD1 !== undefined && overrideD1 !== null) ? parseInt(overrideD1) : Math.floor(Math.random() * 6) + 1;
+    const d2 = (overrideD2 !== undefined && overrideD2 !== null) ? parseInt(overrideD2) : Math.floor(Math.random() * 6) + 1;
     const sum = d1 + d2;
     const isDouble = d1 === d2;
 

@@ -113,12 +113,51 @@
 
           <div class="control-actions">
             <!-- Dice Roller -->
-            <div class="dice-roller-container">
-              <div class="dice-box">
+            <div class="dice-roller-container" style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
+              <div class="dice-mode-toggle" style="display: flex; gap: 8px; align-items: center; margin-bottom: 2px;">
+                <label style="cursor: pointer; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; color: var(--text-dim); user-select: none;">
+                  <input type="radio" name="dice-mode" id="dice-mode-digital" value="digital" checked style="accent-color: var(--color-primary);">
+                  📱 Digital
+                </label>
+                <label style="cursor: pointer; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; color: var(--text-dim); user-select: none;">
+                  <input type="radio" name="dice-mode" id="dice-mode-manual" value="manual" style="accent-color: var(--color-primary);">
+                  🎲 Physical
+                </label>
+              </div>
+
+              <!-- Digital Box -->
+              <div class="dice-box" id="dice-digital-box">
                 <div id="die-1" class="die">🎲</div>
                 <div id="die-2" class="die">🎲</div>
               </div>
-              <button id="btn-roll-dice" class="btn btn-primary">Roll Dice</button>
+
+              <!-- Manual Inputs -->
+              <div class="manual-dice-box" id="dice-manual-box" style="display: none; align-items: center; gap: 8px; margin-bottom: 2px;">
+                <div style="display: flex; flex-direction: column; gap: 2px; align-items: center;">
+                  <span style="font-size: 9px; color: var(--text-dim); text-transform: uppercase; font-weight: 600;">Die 1</span>
+                  <select id="manual-die-1" class="form-input form-input-sm" style="width: 64px; height: 32px; padding: 2px 6px; text-align: center; font-weight: bold; font-size: 13px;">
+                    <option value="1">1 ⚀</option>
+                    <option value="2">2 ⚁</option>
+                    <option value="3">3 ⚂</option>
+                    <option value="4">4 ⚃</option>
+                    <option value="5">5 ⚄</option>
+                    <option value="6">6 ⚅</option>
+                  </select>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 2px; align-items: center;">
+                  <span style="font-size: 9px; color: var(--text-dim); text-transform: uppercase; font-weight: 600;">Die 2</span>
+                  <select id="manual-die-2" class="form-input form-input-sm" style="width: 64px; height: 32px; padding: 2px 6px; text-align: center; font-weight: bold; font-size: 13px;">
+                    <option value="1">1 ⚀</option>
+                    <option value="2">2 ⚁</option>
+                    <option value="3">3 ⚂</option>
+                    <option value="4">4 ⚃</option>
+                    <option value="5">5 ⚄</option>
+                    <option value="6">6 ⚅</option>
+                  </select>
+                </div>
+              </div>
+
+              <button id="btn-roll-dice" class="btn btn-primary" style="width: 100%;">Roll Dice</button>
             </div>
 
             <!-- Contextual action tools -->
@@ -702,7 +741,12 @@
       const isDoubles = state.dice.values[0] === state.dice.values[1];
 
       // Roller enabled if haven't rolled OR rolled doubles and doubles Count is less than 3
-      elBtnRollDice.disabled = rolled && !isDoubles;
+      const isRollerDisabled = rolled && !isDoubles;
+      elBtnRollDice.disabled = isRollerDisabled;
+      document.getElementById("manual-die-1").disabled = isRollerDisabled;
+      document.getElementById("manual-die-2").disabled = isRollerDisabled;
+      document.getElementById("dice-mode-digital").disabled = isRollerDisabled;
+      document.getElementById("dice-mode-manual").disabled = isRollerDisabled;
       elBtnNextTurn.disabled = !rolled || !state.landedActionResolved;
 
       // Card drawing checkers based on position
@@ -1043,19 +1087,57 @@
     }
 
     // ─── DICE ROLLER HANDLER ──────────────────────────────────────────────────
+    document.getElementById("dice-mode-digital").addEventListener("change", updateDiceModeUI);
+    document.getElementById("dice-mode-manual").addEventListener("change", updateDiceModeUI);
+
+    function updateDiceModeUI() {
+      const isManual = document.getElementById("dice-mode-manual").checked;
+      const digitalBox = document.getElementById("dice-digital-box");
+      const manualBox = document.getElementById("dice-manual-box");
+      const btn = document.getElementById("btn-roll-dice");
+
+      if (isManual) {
+        digitalBox.style.display = "none";
+        manualBox.style.display = "flex";
+        btn.innerText = "Submit Physical Roll";
+      } else {
+        digitalBox.style.display = "flex";
+        manualBox.style.display = "none";
+        btn.innerText = "Roll Dice";
+      }
+    }
+
     elBtnRollDice.addEventListener("click", () => {
-      AudioEffects.playDiceRoll();
-      elDie1.classList.add("rolling");
-      elDie2.classList.add("rolling");
-      elBtnRollDice.disabled = true;
+      const isManual = document.getElementById("dice-mode-manual").checked;
 
-      setTimeout(() => {
-        elDie1.classList.remove("rolling");
-        elDie2.classList.remove("rolling");
+      if (isManual) {
+        const val1 = parseInt(document.getElementById("manual-die-1").value);
+        const val2 = parseInt(document.getElementById("manual-die-2").value);
 
-        Monopoly.rollDice();
-        renderAll();
-      }, 600);
+        AudioEffects.playDiceRoll();
+        document.getElementById("dice-manual-box").style.opacity = 0.5;
+        elBtnRollDice.disabled = true;
+
+        setTimeout(() => {
+          document.getElementById("dice-manual-box").style.opacity = 1.0;
+          Monopoly.rollDice(val1, val2);
+          renderAll();
+        }, 300);
+
+      } else {
+        AudioEffects.playDiceRoll();
+        elDie1.classList.add("rolling");
+        elDie2.classList.add("rolling");
+        elBtnRollDice.disabled = true;
+
+        setTimeout(() => {
+          elDie1.classList.remove("rolling");
+          elDie2.classList.remove("rolling");
+
+          Monopoly.rollDice();
+          renderAll();
+        }, 600);
+      }
     });
 
     elBtnNextTurn.addEventListener("click", () => {
