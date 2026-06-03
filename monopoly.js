@@ -41,6 +41,74 @@ const Monopoly = (() => {
         39: "Nguyễn Huệ"
       }
     },
+    VN_SG: {
+      name: "VN Sài Gòn (Đường phố)",
+      currency: "M",
+      names: {
+        1: "Trường Chinh",
+        3: "Cộng Hòa",
+        5: "Ga Sài Gòn",
+        6: "Nguyễn Kiệm",
+        8: "Hoàng Văn Thụ",
+        9: "Phan Đăng Lưu",
+        11: "Điện Biên Phủ",
+        12: "Điện lực Sài Gòn",
+        13: "Cách Mạng Tháng 8",
+        14: "Nguyễn Thị Minh Khai",
+        15: "Ga Gò Vấp",
+        16: "Nam Kỳ Khởi Nghĩa",
+        18: "Võ Văn Tần",
+        19: "Bà Huyện Thanh Quan",
+        21: "Phạm Ngọc Thạch",
+        23: "Trần Hưng Đạo",
+        24: "Nguyễn Trãi",
+        25: "Ga Bình Triệu",
+        26: "Lê Duẩn",
+        27: "Pasteur",
+        28: "Nước sạch Sài Gòn",
+        29: "Hai Bà Trưng",
+        31: "Tôn Đức Thắng",
+        32: "Lê Lợi",
+        34: "Hàm Nghi",
+        35: "Ga Sóng Thần",
+        37: "Đồng Khởi",
+        39: "Nguyễn Huệ"
+      }
+    },
+    VN_HN: {
+      name: "VN Hà Nội (Đường phố)",
+      currency: "M",
+      names: {
+        1: "Đê La Thành",
+        3: "Khâm Thiên",
+        5: "Ga Hà Nội",
+        6: "Chùa Bộc",
+        8: "Tây Sơn",
+        9: "Thái Hà",
+        11: "Đại Cồ Việt",
+        12: "Điện lực Hà Nội",
+        13: "Xã Đàn",
+        14: "Kim Liên",
+        15: "Ga Long Biên",
+        16: "Phố Huế",
+        18: "Hàng Bài",
+        19: "Bà Triệu",
+        21: "Trần Hưng Đạo",
+        23: "Lý Thường Kiệt",
+        24: "Hai Bà Trưng",
+        25: "Ga Giáp Bát",
+        26: "Điện Biên Phủ",
+        27: "Phan Đình Phùng",
+        28: "Nước sạch Hà Nội",
+        29: "Nguyễn Chí Thanh",
+        31: "Liễu Giai",
+        32: "Kim Mã",
+        34: "Nguyễn Thái Học",
+        35: "Ga Gia Lâm",
+        37: "Hàng Ngang",
+        39: "Tràng Tiền"
+      }
+    },
     US: {
       name: "United States Edition",
       currency: "$",
@@ -159,31 +227,31 @@ const Monopoly = (() => {
   // ─── CARDS DEFINITION ────────────────────────────────────────────────────────
   const CHANCE_CARDS = [
     {
-      get title() { return state.edition === "VN" ? "Tiến thẳng về ô Bắt đầu" : "Advance to GO"; },
-      get desc() { return state.edition === "VN" ? "Tiến thẳng về ô Bắt đầu (Nhận 200)" : "Advance to GO (Collect 200)"; },
+      get title() { return state.edition.startsWith("VN") ? "Tiến thẳng về ô Bắt đầu" : "Advance to GO"; },
+      get desc() { return state.edition.startsWith("VN") ? "Tiến thẳng về ô Bắt đầu (Nhận 200)" : "Advance to GO (Collect 200)"; },
       action: (s, p) => movePlayerTo(s, p, 0, true)
     },
     {
-      get title() { return state.edition === "VN" ? "Đi thẳng đến Vịnh Hạ Long" : "Advance to Illinois / Vịnh Hạ Long"; },
-      get desc() { return state.edition === "VN" ? "Di chuyển đến Vịnh Hạ Long (Nếu đi qua ô Bắt đầu, nhận 200)" : "Advance to Space 24 (If you pass GO, collect 200)"; },
+      get title() { return state.edition.startsWith("VN") ? "Đi thẳng đến " + EDITIONS[state.edition].names[24] : "Advance to Illinois / Vịnh Hạ Long"; },
+      get desc() { return state.edition.startsWith("VN") ? "Di chuyển đến " + EDITIONS[state.edition].names[24] + " (Nếu đi qua ô Bắt đầu, nhận 200)" : "Advance to Space 24 (If you pass GO, collect 200)"; },
       action: (s, p) => movePlayerTo(s, p, 24, true)
     },
     {
-      get title() { return state.edition === "VN" ? "Đi thẳng đến Cố đô Huế" : "Advance to St. Charles / Cố đô Huế"; },
-      get desc() { return state.edition === "VN" ? "Di chuyển đến Cố đô Huế (Nếu đi qua ô Bắt đầu, nhận 200)" : "Advance to Space 11 (If you pass GO, collect 200)"; },
+      get title() { return state.edition.startsWith("VN") ? "Đi thẳng đến " + EDITIONS[state.edition].names[11] : "Advance to St. Charles / Cố đô Huế"; },
+      get desc() { return state.edition.startsWith("VN") ? "Di chuyển đến " + EDITIONS[state.edition].names[11] + " (Nếu đi qua ô Bắt đầu, nhận 200)" : "Advance to Space 11 (If you pass GO, collect 200)"; },
       action: (s, p) => movePlayerTo(s, p, 11, true)
     },
     {
-      get title() { return state.edition === "VN" ? "Tiến tới Tiện ích gần nhất" : "Advance to nearest Utility"; },
-      get desc() { return state.edition === "VN" ? "Di chuyển đến công ty tiện ích gần nhất. Nếu đã có chủ, trả tiền thuê gấp 10 lần số xúc xắc. Nếu chưa có chủ, bạn có thể mua nó." : "Advance to nearest Utility. If owned, pay owner 10x dice roll. If unowned, you may buy it."; },
+      get title() { return state.edition.startsWith("VN") ? "Tiến tới Tiện ích gần nhất" : "Advance to nearest Utility"; },
+      get desc() { return state.edition.startsWith("VN") ? "Di chuyển đến công ty tiện ích gần nhất. Nếu đã có chủ, trả tiền thuê gấp 10 lần số xúc xắc. Nếu chưa có chủ, bạn có thể mua nó." : "Advance to nearest Utility. If owned, pay owner 10x dice roll. If unowned, you may buy it."; },
       action: (s, p) => {
         let target = p.position > 12 && p.position <= 28 ? 28 : 12;
         movePlayerTo(s, p, target, true, { nearestUtilityOverride: true });
       }
     },
     {
-      get title() { return state.edition === "VN" ? "Tiến tới Ga tàu gần nhất" : "Advance to nearest Railroad"; },
-      get desc() { return state.edition === "VN" ? "Di chuyển đến ga tàu gần nhất. Nếu đã có chủ, trả tiền thuê gấp đôi. Nếu chưa có chủ, bạn có thể mua nó." : "Advance to nearest Railroad. If owned, pay owner double rent. If unowned, you may buy it."; },
+      get title() { return state.edition.startsWith("VN") ? "Tiến tới Ga tàu gần nhất" : "Advance to nearest Railroad"; },
+      get desc() { return state.edition.startsWith("VN") ? "Di chuyển đến ga tàu gần nhất. Nếu đã có chủ, trả tiền thuê gấp đôi. Nếu chưa có chủ, bạn có thể mua nó." : "Advance to nearest Railroad. If owned, pay owner double rent. If unowned, you may buy it."; },
       action: (s, p) => {
         let pos = p.position;
         let target = 5;
@@ -194,31 +262,31 @@ const Monopoly = (() => {
       }
     },
     {
-      get title() { return state.edition === "VN" ? "Ngân hàng trả cổ tức" : "Bank Pays Dividend"; },
-      get desc() { return state.edition === "VN" ? "Ngân hàng thanh toán cổ tức cho bạn trị giá 50" : "Bank pays you dividend of 50"; },
+      get title() { return state.edition.startsWith("VN") ? "Ngân hàng trả cổ tức" : "Bank Pays Dividend"; },
+      get desc() { return state.edition.startsWith("VN") ? "Ngân hàng thanh toán cổ tức cho bạn trị giá 50" : "Bank pays you dividend of 50"; },
       action: (s, p) => payFromBank(s, p, 50, "CARD_EFFECT")
     },
     {
-      get title() { return state.edition === "VN" ? "Thẻ Vượt ngục miễn phí" : "Get Out of Jail Free"; },
-      get desc() { return state.edition === "VN" ? "Thẻ Vượt ngục. Thẻ này được giữ lại cho đến khi cần dùng." : "Get Out of Jail Free card. This card may be kept until needed."; },
+      get title() { return state.edition.startsWith("VN") ? "Thẻ Vượt ngục miễn phí" : "Get Out of Jail Free"; },
+      get desc() { return state.edition.startsWith("VN") ? "Thẻ Vượt ngục. Thẻ này được giữ lại cho đến khi cần dùng." : "Get Out of Jail Free card. This card may be kept until needed."; },
       action: (s, p) => { p.getOutOfJailCards++; }
     },
     {
-      get title() { return state.edition === "VN" ? "Đi lùi lại 3 ô" : "Go Back 3 Spaces"; },
-      get desc() { return state.edition === "VN" ? "Đi lùi về phía sau 3 ô." : "Retreat 3 spaces."; },
+      get title() { return state.edition.startsWith("VN") ? "Đi lùi lại 3 ô" : "Go Back 3 Spaces"; },
+      get desc() { return state.edition.startsWith("VN") ? "Đi lùi về phía sau 3 ô." : "Retreat 3 spaces."; },
       action: (s, p) => {
         let target = (p.position - 3 + 40) % 40;
         movePlayerTo(s, p, target, false);
       }
     },
     {
-      get title() { return state.edition === "VN" ? "Đi thẳng vào Tù" : "Go to Jail"; },
-      get desc() { return state.edition === "VN" ? "Đi thẳng vào Tù. Không đi qua ô Bắt đầu, không nhận 200." : "Go directly to Jail. Do not pass GO, do not collect 200."; },
+      get title() { return state.edition.startsWith("VN") ? "Đi thẳng vào Tù" : "Go to Jail"; },
+      get desc() { return state.edition.startsWith("VN") ? "Đi thẳng vào Tù. Không đi qua ô Bắt đầu, không nhận 200." : "Go directly to Jail. Do not pass GO, do not collect 200."; },
       action: (s, p) => sendToJail(s, p)
     },
     {
-      get title() { return state.edition === "VN" ? "Sửa chữa nhà cửa toàn diện" : "General Repairs"; },
-      get desc() { return state.edition === "VN" ? "Nộp phí sửa chữa cho tất cả bất động sản bạn sở hữu: 25 cho mỗi căn nhà, 100 cho mỗi khách sạn." : "Make general repairs on all your property. For each house pay 25. For each hotel pay 100."; },
+      get title() { return state.edition.startsWith("VN") ? "Sửa chữa nhà cửa toàn diện" : "General Repairs"; },
+      get desc() { return state.edition.startsWith("VN") ? "Nộp phí sửa chữa cho tất cả bất động sản bạn sở hữu: 25 cho mỗi căn nhà, 100 cho mỗi khách sạn." : "Make general repairs on all your property. For each house pay 25. For each hotel pay 100."; },
       action: (s, p) => {
         let { houses, hotels } = countPlayerBuildings(s, p.id);
         let total = houses * 25 + hotels * 100;
@@ -226,23 +294,23 @@ const Monopoly = (() => {
       }
     },
     {
-      get title() { return state.edition === "VN" ? "Phạt lỗi quá tốc độ" : "Speeding Fine"; },
-      get desc() { return state.edition === "VN" ? "Phạt chạy quá tốc độ 15." : "Speeding fine 15"; },
+      get title() { return state.edition.startsWith("VN") ? "Phạt lỗi quá tốc độ" : "Speeding Fine"; },
+      get desc() { return state.edition.startsWith("VN") ? "Phạt chạy quá tốc độ 15." : "Speeding fine 15"; },
       action: (s, p) => payToBank(s, p, 15, "CARD_EFFECT")
     },
     {
-      get title() { return state.edition === "VN" ? "Bắt chuyến tàu đến Ga Sài Gòn" : "Take a trip to Reading Railroad / Ga Sài Gòn"; },
-      get desc() { return state.edition === "VN" ? "Di chuyển đến Ga Sài Gòn (Nếu đi qua ô Bắt đầu, nhận 200)" : "Advance to Space 5 (If you pass GO, collect 200)"; },
+      get title() { return state.edition.startsWith("VN") ? "Bắt chuyến tàu đến " + EDITIONS[state.edition].names[5] : "Take a trip to Reading Railroad / Ga Sài Gòn"; },
+      get desc() { return state.edition.startsWith("VN") ? "Di chuyển đến " + EDITIONS[state.edition].names[5] + " (Nếu đi qua ô Bắt đầu, nhận 200)" : "Advance to Space 5 (If you pass GO, collect 200)"; },
       action: (s, p) => movePlayerTo(s, p, 5, true)
     },
     {
-      get title() { return state.edition === "VN" ? "Đi thẳng đến đường Nguyễn Huệ" : "Advance to Boardwalk / Nguyễn Huệ"; },
-      get desc() { return state.edition === "VN" ? "Di chuyển đến ô Nguyễn Huệ." : "Advance to Space 39"; },
+      get title() { return state.edition.startsWith("VN") ? "Đi thẳng đến " + EDITIONS[state.edition].names[39] : "Advance to Boardwalk / Nguyễn Huệ"; },
+      get desc() { return state.edition.startsWith("VN") ? "Di chuyển đến ô " + EDITIONS[state.edition].names[39] + "." : "Advance to Space 39"; },
       action: (s, p) => movePlayerTo(s, p, 39, true)
     },
     {
-      get title() { return state.edition === "VN" ? "Được bầu làm Chủ tịch Hội đồng" : "Elected Chairman of the Board"; },
-      get desc() { return state.edition === "VN" ? "Bạn đã được bầu làm Chủ tịch Hội đồng Quản trị. Trả cho mỗi người chơi khác 50." : "You have been elected Chairman of the Board. Pay each player 50."; },
+      get title() { return state.edition.startsWith("VN") ? "Được bầu làm Chủ tịch Hội đồng" : "Elected Chairman of the Board"; },
+      get desc() { return state.edition.startsWith("VN") ? "Bạn đã được bầu làm Chủ tịch Hội đồng Quản trị. Trả cho mỗi người chơi khác 50." : "You have been elected Chairman of the Board. Pay each player 50."; },
       action: (s, p) => {
         s.players.forEach(other => {
           if (other.id !== p.id && !other.isBankrupt) {
@@ -252,56 +320,56 @@ const Monopoly = (() => {
       }
     },
     {
-      get title() { return state.edition === "VN" ? "Khoản vay xây dựng đáo hạn" : "Building Loan Matures"; },
-      get desc() { return state.edition === "VN" ? "Khoản vay xây dựng đáo hạn. Nhận 150." : "Your building loan matures. Collect 150."; },
+      get title() { return state.edition.startsWith("VN") ? "Khoản vay xây dựng đáo hạn" : "Building Loan Matures"; },
+      get desc() { return state.edition.startsWith("VN") ? "Khoản vay xây dựng đáo hạn. Nhận 150." : "Your building loan matures. Collect 150."; },
       action: (s, p) => payFromBank(s, p, 150, "CARD_EFFECT")
     }
   ];
 
   const CHEST_CARDS = [
     {
-      get title() { return state.edition === "VN" ? "Tiến thẳng về ô Bắt đầu" : "Advance to GO"; },
-      get desc() { return state.edition === "VN" ? "Tiến thẳng về ô Bắt đầu (Nhận 200)" : "Advance to GO (Collect 200)"; },
+      get title() { return state.edition.startsWith("VN") ? "Tiến thẳng về ô Bắt đầu" : "Advance to GO"; },
+      get desc() { return state.edition.startsWith("VN") ? "Tiến thẳng về ô Bắt đầu (Nhận 200)" : "Advance to GO (Collect 200)"; },
       action: (s, p) => movePlayerTo(s, p, 0, true)
     },
     {
-      get title() { return state.edition === "VN" ? "Sai sót của Ngân hàng có lợi cho bạn" : "Bank Error in your favor"; },
-      get desc() { return state.edition === "VN" ? "Ngân hàng có sự sai sót và có lợi cho bạn. Nhận 200." : "Bank error in your favor. Collect 200."; },
+      get title() { return state.edition.startsWith("VN") ? "Sai sót của Ngân hàng có lợi cho bạn" : "Bank Error in your favor"; },
+      get desc() { return state.edition.startsWith("VN") ? "Ngân hàng có sự sai sót và có lợi cho bạn. Nhận 200." : "Bank error in your favor. Collect 200."; },
       action: (s, p) => payFromBank(s, p, 200, "CARD_EFFECT")
     },
     {
-      get title() { return state.edition === "VN" ? "Phí khám bệnh" : "Doctor's Fees"; },
-      get desc() { return state.edition === "VN" ? "Trả bác sĩ phí khám bệnh 50." : "Doctor's fees. Pay 50."; },
+      get title() { return state.edition.startsWith("VN") ? "Phí khám bệnh" : "Doctor's Fees"; },
+      get desc() { return state.edition.startsWith("VN") ? "Trả bác sĩ phí khám bệnh 50." : "Doctor's fees. Pay 50."; },
       action: (s, p) => payToBank(s, p, 50, "CARD_EFFECT")
     },
     {
-      get title() { return state.edition === "VN" ? "Bán cổ phiếu" : "Stock Sale"; },
-      get desc() { return state.edition === "VN" ? "Từ đợt bán cổ tích lũy bạn nhận được 50." : "From sale of stock you get 50."; },
+      get title() { return state.edition.startsWith("VN") ? "Bán cổ phiếu" : "Stock Sale"; },
+      get desc() { return state.edition.startsWith("VN") ? "Từ đợt bán cổ tích lũy bạn nhận được 50." : "From sale of stock you get 50."; },
       action: (s, p) => payFromBank(s, p, 50, "CARD_EFFECT")
     },
     {
-      get title() { return state.edition === "VN" ? "Thẻ Vượt ngục miễn phí" : "Get Out of Jail Free"; },
-      get desc() { return state.edition === "VN" ? "Thẻ Vượt ngục miễn phí. Thẻ này có thể giữ lại cho đến khi cần dùng." : "Get Out of Jail Free card. This card may be kept until needed."; },
+      get title() { return state.edition.startsWith("VN") ? "Thẻ Vượt ngục miễn phí" : "Get Out of Jail Free"; },
+      get desc() { return state.edition.startsWith("VN") ? "Thẻ Vượt ngục miễn phí. Thẻ này có thể giữ lại cho đến khi cần dùng." : "Get Out of Jail Free card. This card may be kept until needed."; },
       action: (s, p) => { p.getOutOfJailCards++; }
     },
     {
-      get title() { return state.edition === "VN" ? "Đi thẳng vào Tù" : "Go directly to Jail"; },
-      get desc() { return state.edition === "VN" ? "Đi thẳng vào Tù. Không đi qua ô Bắt đầu, không nhận 200." : "Go directly to Jail. Do not pass GO, do not collect 200."; },
+      get title() { return state.edition.startsWith("VN") ? "Đi thẳng vào Tù" : "Go directly to Jail"; },
+      get desc() { return state.edition.startsWith("VN") ? "Đi thẳng vào Tù. Không đi qua ô Bắt đầu, không nhận 200." : "Go directly to Jail. Do not pass GO, do not collect 200."; },
       action: (s, p) => sendToJail(s, p)
     },
     {
-      get title() { return state.edition === "VN" ? "Quỹ nghỉ lễ đáo hạn" : "Holiday Fund Matures"; },
-      get desc() { return state.edition === "VN" ? "Quỹ tiết kiệm nghỉ lễ đáo hạn. Nhận 100." : "Holiday fund matures. Receive 100."; },
+      get title() { return state.edition.startsWith("VN") ? "Quỹ nghỉ lễ đáo hạn" : "Holiday Fund Matures"; },
+      get desc() { return state.edition.startsWith("VN") ? "Quỹ tiết kiệm nghỉ lễ đáo hạn. Nhận 100." : "Holiday fund matures. Receive 100."; },
       action: (s, p) => payFromBank(s, p, 100, "CARD_EFFECT")
     },
     {
-      get title() { return state.edition === "VN" ? "Hoàn thuế thu nhập" : "Income Tax Refund"; },
-      get desc() { return state.edition === "VN" ? "Hoàn trả thuế thu nhập. Nhận 20." : "Income tax refund. Collect 20."; },
+      get title() { return state.edition.startsWith("VN") ? "Hoàn thuế thu nhập" : "Income Tax Refund"; },
+      get desc() { return state.edition.startsWith("VN") ? "Hoàn trả thuế thu nhập. Nhận 20." : "Income tax refund. Collect 20."; },
       action: (s, p) => payFromBank(s, p, 20, "CARD_EFFECT")
     },
     {
-      get title() { return state.edition === "VN" ? "Tiệc sinh nhật" : "Birthday Party"; },
-      get desc() { return state.edition === "VN" ? "Hôm nay là sinh nhật bạn. Thu đóng đóng góp 10 từ mỗi người chơi khác." : "It is your birthday. Collect 10 from every player."; },
+      get title() { return state.edition.startsWith("VN") ? "Tiệc sinh nhật" : "Birthday Party"; },
+      get desc() { return state.edition.startsWith("VN") ? "Hôm nay là sinh nhật bạn. Thu đóng đóng góp 10 từ mỗi người chơi khác." : "It is your birthday. Collect 10 from every player."; },
       action: (s, p) => {
         s.players.forEach(other => {
           if (other.id !== p.id && !other.isBankrupt) {
@@ -311,28 +379,28 @@ const Monopoly = (() => {
       }
     },
     {
-      get title() { return state.edition === "VN" ? "Bảo hiểm nhân thọ đáo hạn" : "Life Insurance Matures"; },
-      get desc() { return state.edition === "VN" ? "Hợp đồng bảo hiểm nhân thọ đáo hạn. Nhận 100." : "Life insurance matures. Collect 100."; },
+      get title() { return state.edition.startsWith("VN") ? "Bảo hiểm nhân thọ đáo hạn" : "Life Insurance Matures"; },
+      get desc() { return state.edition.startsWith("VN") ? "Hợp đồng bảo hiểm nhân thọ đáo hạn. Nhận 100." : "Life insurance matures. Collect 100."; },
       action: (s, p) => payFromBank(s, p, 100, "CARD_EFFECT")
     },
     {
-      get title() { return state.edition === "VN" ? "Phí bệnh viện" : "Hospital Fees"; },
-      get desc() { return state.edition === "VN" ? "Nộp phí bệnh viện 100." : "Pay hospital fees of 100."; },
+      get title() { return state.edition.startsWith("VN") ? "Phí bệnh viện" : "Hospital Fees"; },
+      get desc() { return state.edition.startsWith("VN") ? "Nộp phí bệnh viện 100." : "Pay hospital fees of 100."; },
       action: (s, p) => payToBank(s, p, 100, "CARD_EFFECT")
     },
     {
-      get title() { return state.edition === "VN" ? "Nộp học phí" : "School Fees"; },
-      get desc() { return state.edition === "VN" ? "Đóng học phí 50." : "Pay school fees of 50."; },
+      get title() { return state.edition.startsWith("VN") ? "Nộp học phí" : "School Fees"; },
+      get desc() { return state.edition.startsWith("VN") ? "Đóng học phí 50." : "Pay school fees of 50."; },
       action: (s, p) => payToBank(s, p, 50, "CARD_EFFECT")
     },
     {
-      get title() { return state.edition === "VN" ? "Phí tư vấn dịch vụ" : "Consultancy Fee"; },
-      get desc() { return state.edition === "VN" ? "Nhận 25 phí dịch vụ tư vấn." : "Receive 25 consultancy fee."; },
+      get title() { return state.edition.startsWith("VN") ? "Phí tư vấn dịch vụ" : "Consultancy Fee"; },
+      get desc() { return state.edition.startsWith("VN") ? "Nhận 25 phí dịch vụ tư vấn." : "Receive 25 consultancy fee."; },
       action: (s, p) => payFromBank(s, p, 25, "CARD_EFFECT")
     },
     {
-      get title() { return state.edition === "VN" ? "Chi phí trùng tu đường sá" : "Street Repairs"; },
-      get desc() { return state.edition === "VN" ? "Bạn phải đóng góp trùng tu đường sá: 40 cho mỗi căn nhà, 115 cho mỗi khách sạn bạn sở hữu." : "You are assessed for street repairs. For each house pay 40. For each hotel pay 115."; },
+      get title() { return state.edition.startsWith("VN") ? "Chi phí trùng tu đường sá" : "Street Repairs"; },
+      get desc() { return state.edition.startsWith("VN") ? "Bạn phải đóng góp trùng tu đường sá: 40 cho mỗi căn nhà, 115 cho mỗi khách sạn bạn sở hữu." : "You are assessed for street repairs. For each house pay 40. For each hotel pay 115."; },
       action: (s, p) => {
         let { houses, hotels } = countPlayerBuildings(s, p.id);
         let total = houses * 40 + hotels * 115;
@@ -340,13 +408,13 @@ const Monopoly = (() => {
       }
     },
     {
-      get title() { return state.edition === "VN" ? "Giải nhì Cuộc thi sắc đẹp" : "Beauty Contest"; },
-      get desc() { return state.edition === "VN" ? "Bạn giành giải nhì cuộc thi sắc đẹp. Nhận thưởng 10." : "You have won second prize in a beauty contest. Collect 10."; },
+      get title() { return state.edition.startsWith("VN") ? "Giải nhì Cuộc thi sắc đẹp" : "Beauty Contest"; },
+      get desc() { return state.edition.startsWith("VN") ? "Bạn giành giải nhì cuộc thi sắc đẹp. Nhận thưởng 10." : "You have won second prize in a beauty contest. Collect 10."; },
       action: (s, p) => payFromBank(s, p, 10, "CARD_EFFECT")
     },
     {
-      get title() { return state.edition === "VN" ? "Nhận tài sản thừa kế" : "Inheritance"; },
-      get desc() { return state.edition === "VN" ? "Bạn thừa kế 100." : "You inherit 100."; },
+      get title() { return state.edition.startsWith("VN") ? "Nhận tài sản thừa kế" : "Inheritance"; },
+      get desc() { return state.edition.startsWith("VN") ? "Bạn thừa kế 100." : "You inherit 100."; },
       action: (s, p) => payFromBank(s, p, 100, "CARD_EFFECT")
     }
   ];

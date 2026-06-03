@@ -483,6 +483,50 @@
           // Clean up
           Monopoly.clearLocalStorage();
         }
+      },
+      {
+        name: "Test VN Sài Gòn Edition Setup & Mappings",
+        fn: () => {
+          Monopoly.initGame(
+            [{ name: "Alice", token: "token_car" }, { name: "Bob", token: "token_thimble" }],
+            "VN_SG",
+            1500
+          );
+          const state = Monopoly.getState();
+          assertEquals(state.edition, "VN_SG", "Edition should be VN_SG");
+          
+          // Verify Sài Gòn street names
+          const space39 = state.properties.find(p => p.id === 39);
+          assertEquals(space39.name, "Nguyễn Huệ", "Space 39 is Nguyễn Huệ");
+          
+          const space37 = state.properties.find(p => p.id === 37);
+          assertEquals(space37.name, "Đồng Khởi", "Space 37 is Đồng Khởi");
+          
+          const space5 = state.properties.find(p => p.id === 5);
+          assertEquals(space5.name, "Ga Sài Gòn", "Space 5 is Ga Sài Gòn");
+        }
+      },
+      {
+        name: "Test VN Hà Nội Edition Setup & Mappings",
+        fn: () => {
+          Monopoly.initGame(
+            [{ name: "Alice", token: "token_car" }, { name: "Bob", token: "token_thimble" }],
+            "VN_HN",
+            1500
+          );
+          const state = Monopoly.getState();
+          assertEquals(state.edition, "VN_HN", "Edition should be VN_HN");
+          
+          // Verify Hà Nội street names
+          const space39 = state.properties.find(p => p.id === 39);
+          assertEquals(space39.name, "Tràng Tiền", "Space 39 is Tràng Tiền");
+          
+          const space37 = state.properties.find(p => p.id === 37);
+          assertEquals(space37.name, "Hàng Ngang", "Space 37 is Hàng Ngang");
+          
+          const space5 = state.properties.find(p => p.id === 5);
+          assertEquals(space5.name, "Ga Hà Nội", "Space 5 is Ga Hà Nội");
+        }
       }
     ];
 
