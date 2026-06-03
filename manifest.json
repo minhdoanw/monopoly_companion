@@ -1,0 +1,16 @@
+{
+  "short_name": "Monopoly Host",
+  "name": "Monopoly Game Companion",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#0a0a0c",
+  "theme_color": "#121216",
+  "display": "standalone",
+  "orientation": "any"
+}

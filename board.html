@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monopoly Host - Spectator Board View</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    /* Specific styles for the board-only view to optimize for TV/Spectator display */
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      overflow: hidden;
+      background: radial-gradient(circle at center, #161820 0%, #08090c 100%);
+      display: flex;
+      flex-direction: row;
+      font-family: 'Inter', sans-serif;
+      color: var(--text-main);
+    }
+    
+    .board-view-container {
+      display: flex;
+      flex: 1;
+      height: 100vh;
+      box-sizing: border-box;
+      padding: 16px;
+      gap: 24px;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    
+    /* Left column for stats */
+    .board-sidebar {
+      width: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      height: 100%;
+      justify-content: center;
+    }
+    
+    /* Right column for the board itself */
+    .board-main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+    }
+    
+    /* Force board to fit 100% height/width of its container while remaining square */
+    .properties-grid.monopoly-board-layout {
+      max-width: 92vh !important;
+      max-height: 92vh !important;
+      width: 92vh !important;
+      height: 92vh !important;
+      margin: auto !important;
+    }
+    
+    .spectator-card {
+      background: rgba(30, 41, 59, 0.4);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+    
+    .spectator-card h3 {
+      margin-top: 0;
+      margin-bottom: 16px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      color: var(--text-white);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 8px;
+      font-size: 18px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    /* Player list items in spectator view */
+    .spectator-player-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      background: rgba(255, 255, 255, 0.02);
+      transition: all 0.3s ease;
+    }
+    
+    .spectator-player-item.active-turn {
+      border-color: var(--color-primary);
+      background: rgba(59, 130, 246, 0.1);
+      box-shadow: 0 0 12px rgba(59, 130, 246, 0.2);
+    }
+    
+    .spectator-player-item.bankrupt {
+      opacity: 0.3;
+      text-decoration: line-through;
+    }
+    
+    .player-identity {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .player-badge {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: bold;
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .player-details {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .player-details .name {
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text-white);
+    }
+    
+    .player-details .status {
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+    
+    .player-balance {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--color-gold);
+    }
+    
+    /* Turn Info */
+    .turn-info-card {
+      text-align: center;
+    }
+    
+    .turn-info-card .active-avatar {
+      font-size: 40px;
+      margin-bottom: 8px;
+    }
+    
+    .turn-info-card .active-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-white);
+    }
+    
+    .turn-info-card .turn-title {
+      font-size: 11px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+    }
+    
+    .spectator-dice {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    
+    .spectator-die {
+      font-size: 32px;
+      background: var(--text-white);
+      color: #000;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+    
+    .no-session-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #0f1013;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      color: var(--text-white);
+      text-align: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    
+    .no-session-overlay h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 32px;
+      margin-bottom: 16px;
+      color: var(--color-danger);
+    }
+    
+    .no-session-overlay p {
+      color: var(--text-dim);
+      font-size: 18px;
+      max-width: 500px;
+      line-height: 1.5;
+    }
+    
+    /* Fullscreen button */
+    .btn-fs {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      z-index: 50;
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-white);
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(8px);
+    }
+    .btn-fs:hover {
+      background: rgba(59, 130, 246, 0.2);
+      border-color: var(--color-primary);
+    }
+    
+    /* Read-Only Spec modal overlays */
+    .spec-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s ease;
+      z-index: 200;
+    }
+    
+    .spec-modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    
+    .spec-modal-content {
+      background: #1e293b;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 380px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+      position: relative;
+    }
+    
+    .spec-modal-header {
+      padding: 16px;
+      text-align: center;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 20px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .spec-modal-body {
+      padding: 24px;
+      color: var(--text-white);
+    }
+    
+    .rent-line {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    
+    .meta-line {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+    
+    .close-spec-modal {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      background: transparent;
+      border: none;
+      color: rgba(255,255,255,0.6);
+      font-size: 20px;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .close-spec-modal:hover {
+      color: #fff;
+    }
+
+    /* Adjust layout on small viewport or tall aspect ratios */
+    @media (max-width: 900px) {
+      body {
+        flex-direction: column;
+        overflow-y: auto;
+        height: auto;
+      }
+      .board-view-container {
+        flex-direction: column;
+        height: auto;
+        padding: 60px 16px 24px 16px;
+      }
+      .board-sidebar {
+        width: 100%;
+        max-width: 500px;
+        order: 2;
+      }
+      .board-main {
+        width: 100%;
+        order: 1;
+      }
+      .properties-grid.monopoly-board-layout {
+        max-width: 95vw !important;
+        max-height: 95vw !important;
+        width: 95vw !important;
+        height: 95vw !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Fullscreen Toggle Button -->
+  <button id="btn-fullscreen-spec" class="btn-fs">
+    <span>⛶</span> Fullscreen View
+  </button>
+
+  <!-- No session state overlay -->
+  <div id="no-session-overlay" class="no-session-overlay">
+    <h2>No Active Game Session</h2>
+    <p>Please open the companion console page and start a game session first. This board will synchronize automatically once a session is established.</p>
+  </div>
+
+  <!-- Spectator Board Container -->
+  <div class="board-view-container">
+    
+    <!-- Left Sidebar: Players Stats & Current Turn -->
+    <div class="board-sidebar">
+      
+      <!-- Current Turn Card -->
+      <div class="spectator-card turn-info-card">
+        <div class="turn-title">Current Turn</div>
+        <div id="current-player-avatar" class="active-avatar">🚗</div>
+        <div id="current-player-name" class="active-name">Active Player</div>
+        
+        <!-- Dice Roll Info -->
+        <div id="spectator-dice-box" class="spectator-dice">
+          <div class="spectator-die">🎲</div>
+          <div class="spectator-die">🎲</div>
+        </div>
+      </div>
+      
+      <!-- Leaderboard Overview -->
+      <div class="spectator-card">
+        <h3>Players & Accounts</h3>
+        <div id="spectator-players-list">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </div>
+    
+    <!-- Main Center Panel: Board Grid -->
+    <div class="board-main">
+      <div id="properties-board-grid" class="properties-grid monopoly-board-layout">
+        <!-- Dynamic Monopoly Board grid elements -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Read-Only Property details modal overlay -->
+  <div id="spectator-modal" class="spec-modal-overlay">
+    <div class="spec-modal-content">
+      <button class="close-spec-modal" onclick="closeSpecModal()">&times;</button>
+      <div id="spec-modal-header" class="spec-modal-header">Property Details</div>
+      <div id="spec-modal-body" class="spec-modal-body">
+        <!-- Dynamic property metrics -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Javascript Logic -->
+  <script src="monopoly.js"></script>
+  <script>
+    const elNoSessionOverlay = document.getElementById("no-session-overlay");
+    const elPropertiesBoardGrid = document.getElementById("properties-board-grid");
+    const elCurrentPlayerAvatar = document.getElementById("current-player-avatar");
+    const elCurrentPlayerName = document.getElementById("current-player-name");
+    const elSpectatorDiceBox = document.getElementById("spectator-dice-box");
+    const elSpectatorPlayersList = document.getElementById("spectator-players-list");
+    const elBtnFullscreenSpec = document.getElementById("btn-fullscreen-spec");
+    
+    const elModalSpec = document.getElementById("spectator-modal");
+
+    // ─── INITIALIZE AND SYNC ──────────────────────────────────────────────────
+    function refreshBoardView() {
+      const loaded = Monopoly.loadFromLocalStorage();
+      if (!loaded) {
+        elNoSessionOverlay.style.display = "flex";
+        return;
+      }
+      
+      elNoSessionOverlay.style.display = "none";
+      const state = Monopoly.getState();
+      const currentEdition = Monopoly.EDITIONS[state.edition];
+
+      renderTurnInfo(state);
+      renderPlayers(state, currentEdition);
+      renderBoardGrid(state);
+    }
+
+    // Refresh when local storage updates from other tabs
+    window.addEventListener("storage", (e) => {
+      if (e.key === "monopoly_session") {
+        refreshBoardView();
+      }
+    });
+
+    // ─── RENDER TURN INFO ─────────────────────────────────────────────────────
+    function renderTurnInfo(state) {
+      if (!state.players || state.players.length === 0) return;
+      const activePlayer = state.players[state.currentPlayerIndex];
+      elCurrentPlayerAvatar.innerText = activePlayer.token;
+      elCurrentPlayerName.innerText = activePlayer.name;
+      elCurrentPlayerName.style.color = activePlayer.color;
+
+      const diceFaces = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+      if (state.dice && state.dice.values && state.dice.values.length === 2) {
+        elSpectatorDiceBox.innerHTML = `
+          <div class="spectator-die">${diceFaces[state.dice.values[0] - 1] || "🎲"}</div>
+          <div class="spectator-die">${diceFaces[state.dice.values[1] - 1] || "🎲"}</div>
+        `;
+      }
+    }
+
+    // ─── RENDER PLAYERS LIST ──────────────────────────────────────────────────
+    function renderPlayers(state, edition) {
+      elSpectatorPlayersList.innerHTML = "";
+      state.players.forEach((p, idx) => {
+        const item = document.createElement("div");
+        item.className = `spectator-player-item ${idx === state.currentPlayerIndex ? 'active-turn' : ''} ${p.isBankrupt ? 'bankrupt' : ''}`;
+        
+        let statusText = "Active";
+        if (p.isBankrupt) statusText = "Bankrupt";
+        else if (p.inJail) statusText = "In Jail 🔒";
+
+        item.innerHTML = `
+          <div class="player-identity">
+            <span class="player-badge" style="background: ${p.color};">${p.token}</span>
+            <div class="player-details">
+              <span class="name">${p.name}</span>
+              <span class="status">${statusText}</span>
+            </div>
+          </div>
+          <div class="player-balance">${Monopoly.getFormattedAmount(p.balance)}</div>
+        `;
+        elSpectatorPlayersList.appendChild(item);
+      });
+    }
+
+    // ─── RENDER 11x11 BOARD GRID ──────────────────────────────────────────────
+    function renderBoardGrid(state) {
+      elPropertiesBoardGrid.innerHTML = "";
+      
+      state.properties.forEach(p => {
+        const card = document.createElement("div");
+        card.className = "board-space";
+        
+        const colorVal = (p.type === "property" || p.type === "railroad" || p.type === "utility") ? getGroupColor(p.group) : null;
+        const owner = p.ownerId ? state.players.find(pl => pl.id === p.ownerId) : null;
+        const formattedPrice = p.cost ? Monopoly.getFormattedAmount(p.cost) : "";
+
+        // Determine grid position
+        const coords = getBoardGridCoords(p.id);
+        card.style.gridRow = coords.row;
+        card.style.gridColumn = coords.col;
+
+        // Side classes
+        if (p.id === 0 || p.id === 10 || p.id === 20 || p.id === 30) {
+          card.classList.add("corner-space");
+          if (p.id === 0) card.classList.add("go-corner");
+          if (p.id === 10) card.classList.add("jail-corner");
+          if (p.id === 20) card.classList.add("parking-corner");
+          if (p.id === 30) card.classList.add("gotojail-corner");
+        } else if (coords.row === 1) {
+          card.classList.add("vertical-space", "top-side");
+        } else if (coords.row === 11) {
+          card.classList.add("vertical-space", "bottom-side");
+        } else if (coords.col === 1) {
+          card.classList.add("horizontal-space", "left-side");
+        } else if (coords.col === 11) {
+          card.classList.add("horizontal-space", "right-side");
+        }
+
+        // landed tokens
+        const activePlayer = state.players[state.currentPlayerIndex];
+        const isLanded = activePlayer && activePlayer.position === p.id;
+        if (isLanded) {
+          card.classList.add("landed-on");
+          if (state.dice.lastRolled && !state.landedActionResolved) {
+            if (!p.ownerId && (p.type === "property" || p.type === "railroad" || p.type === "utility")) {
+              card.classList.add("can-buy-highlight");
+            } else if (p.ownerId && p.ownerId !== activePlayer.id && !p.isMortgaged) {
+              card.classList.add("must-pay-rent-highlight");
+            }
+          }
+        }
+
+        if (p.isMortgaged) {
+          card.classList.add("mortgaged");
+        }
+
+        let buildingEmoji = "";
+        if (p.houses === 5) buildingEmoji = "🏨";
+        else if (p.houses > 0) buildingEmoji = "🏠".repeat(p.houses);
+
+        const landedPlayers = state.players.filter(pl => pl.position === p.id && !pl.isBankrupt);
+        let landedTokensHtml = "";
+        if (landedPlayers.length > 0) {
+          landedTokensHtml = `
+            <div class="landed-players-tokens">
+              ${landedPlayers.map(pl => `<span class="landed-token" title="${pl.name}" style="background: ${pl.color};">${pl.token}</span>`).join("")}
+            </div>
+          `;
+        }
+
+        let headerHtml = "";
+        if (colorVal) {
+          headerHtml = `<div class="property-card-header" style="background-color: ${colorVal};"></div>`;
+        }
+
+        let bodyContent = "";
+        if (p.type === "property" || p.type === "railroad" || p.type === "utility") {
+          bodyContent = `
+            <div class="space-name">${p.name}</div>
+            <div class="space-meta">
+              <span class="space-price">${formattedPrice}</span>
+              <span class="space-owner-building">${buildingEmoji}${owner ? ' ' + owner.token : ''}</span>
+            </div>
+          `;
+        } else {
+          let iconEmoji = "⚙️";
+          if (p.type === "go") iconEmoji = "🏁";
+          else if (p.type === "chance") iconEmoji = "❓";
+          else if (p.type === "chest") iconEmoji = "📦";
+          else if (p.type === "tax") iconEmoji = "💸";
+          else if (p.type === "jail") iconEmoji = "🔒";
+          else if (p.type === "parking") iconEmoji = "🚗";
+          else if (p.type === "gotojail") iconEmoji = "🚨";
+
+          bodyContent = `
+            <div class="space-icon">${iconEmoji}</div>
+            <div class="space-name special-space-name">${p.name}</div>
+          `;
+        }
+
+        card.innerHTML = `
+          ${headerHtml}
+          <div class="board-space-body">
+            ${landedTokensHtml}
+            ${bodyContent}
+          </div>
+        `;
+        
+        // Show deed modal when clicked
+        card.addEventListener("click", () => openPropertyModal(p.id));
+        elPropertiesBoardGrid.appendChild(card);
+      });
+
+      // Central logo branding
+      const centerCell = document.createElement("div");
+      centerCell.className = "monopoly-board-center";
+      centerCell.innerHTML = `
+        <div class="center-logo">MONOPOLY</div>
+        <div class="center-sub">COMPANION</div>
+        <div class="center-edition">${Monopoly.EDITIONS[state.edition].name}</div>
+      `;
+      elPropertiesBoardGrid.appendChild(centerCell);
+    }
+
+    function getBoardGridCoords(id) {
+      if (id >= 20 && id <= 30) {
+        return { row: 1, col: id - 19 };
+      } else if (id >= 11 && id <= 19) {
+        return { row: 21 - id, col: 1 };
+      } else if (id >= 31 && id <= 39) {
+        return { row: id - 29, col: 11 };
+      } else {
+        return { row: 11, col: 11 - id };
+      }
+    }
+
+    function getGroupColor(group) {
+      switch (group) {
+        case "brown": return "#955436";
+        case "light-blue": return "#aae0fa";
+        case "magenta": return "#d93a96";
+        case "orange": return "#f7941d";
+        case "red": return "#ed1c24";
+        case "yellow": return "#fef200";
+        case "green": return "#19a950";
+        case "dark-blue": return "#002fbe";
+        case "railroad": return "#334155";
+        case "utility": return "#475569";
+        default: return null;
+      }
+    }
+
+    // ─── FULLSCREEN CONTROLS ──────────────────────────────────────────────────
+    elBtnFullscreenSpec.addEventListener("click", () => {
+      toggleFullscreen(document.documentElement);
+    });
+
+    function toggleFullscreen(element) {
+      if (!document.fullscreenElement) {
+        if (element.requestFullscreen) {
+          element.requestFullscreen();
+        } else if (element.webkitRequestFullscreen) {
+          element.webkitRequestFullscreen();
+        }
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
+      }
+    }
+
+    document.addEventListener("fullscreenchange", () => {
+      if (document.fullscreenElement) {
+        elBtnFullscreenSpec.innerHTML = `<span>⛶</span> Exit Fullscreen`;
+      } else {
+        elBtnFullscreenSpec.innerHTML = `<span>⛶</span> Fullscreen View`;
+      }
+    });
+
+    // ─── DEED DETAILS POPUP ───────────────────────────────────────────────────
+    function openPropertyModal(propertyId) {
+      const state = Monopoly.getState();
+      const p = state.properties.find(prop => prop.id === propertyId);
+      if (!p || (p.type !== "property" && p.type !== "railroad" && p.type !== "utility")) return;
+      
+      const owner = p.ownerId ? state.players.find(pl => pl.id === p.ownerId) : null;
+      const currentEdition = Monopoly.EDITIONS[state.edition];
+      const currency = currentEdition.currency;
+      const colorVal = getGroupColor(p.group);
+      
+      const elTitle = document.getElementById("spec-modal-title");
+      const elHeader = document.getElementById("spec-modal-header");
+      const elBody = document.getElementById("spec-modal-body");
+      
+      elHeader.style.backgroundColor = colorVal || 'rgba(255,255,255,0.08)';
+      elHeader.innerText = p.name;
+      elHeader.style.color = (p.group === 'yellow' || p.group === 'light-blue') ? '#222' : '#fff';
+      
+      let detailsHtml = "";
+      if (p.type === "property") {
+        detailsHtml = `
+          <div class="rent-line">Rent: <strong>${currency}${p.rent[0]}</strong></div>
+          <div class="rent-line">With 1 House: <strong>${currency}${p.rent[1]}</strong></div>
+          <div class="rent-line">With 2 Houses: <strong>${currency}${p.rent[2]}</strong></div>
+          <div class="rent-line">With 3 Houses: <strong>${currency}${p.rent[3]}</strong></div>
+          <div class="rent-line">With 4 Houses: <strong>${currency}${p.rent[4]}</strong></div>
+          <div class="rent-line">With Hotel: <strong>${currency}${p.rent[5]}</strong></div>
+          <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.08); margin: 12px 0;">
+          <div class="meta-line">House Cost: <strong>${currency}${p.houseCost}</strong> each</div>
+          <div class="meta-line">Mortgage Value: <strong>${currency}${p.mortgageValue}</strong></div>
+        `;
+      } else if (p.type === "railroad") {
+        detailsHtml = `
+          <div class="rent-line">Rent (1 Railroad owned): <strong>${currency}25</strong></div>
+          <div class="rent-line">Rent (2 Railroads owned): <strong>${currency}50</strong></div>
+          <div class="rent-line">Rent (3 Railroads owned): <strong>${currency}100</strong></div>
+          <div class="rent-line">Rent (4 Railroads owned): <strong>${currency}200</strong></div>
+          <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.08); margin: 12px 0;">
+          <div class="meta-line">Mortgage Value: <strong>${currency}${p.mortgageValue}</strong></div>
+        `;
+      } else if (p.type === "utility") {
+        detailsHtml = `
+          <div class="rent-line">If 1 Utility is owned, rent is <strong>4x</strong> dice value.</div>
+          <div class="rent-line">If 2 Utilities are owned, rent is <strong>10x</strong> dice value.</div>
+          <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.08); margin: 12px 0;">
+          <div class="meta-line">Mortgage Value: <strong>${currency}${p.mortgageValue}</strong></div>
+        `;
+      }
+      
+      let statusHtml = `
+        <div style="margin-top: 16px; text-align: center; font-size: 14px;">
+          Status: <strong>${owner ? owner.token + ' ' + owner.name : 'Unowned'}</strong>
+          ${p.isMortgaged ? ' <span class="badge" style="background:var(--color-danger); padding:2px 6px; border-radius:4px; font-size:10px;">Mortgaged</span>' : ''}
+          ${p.houses > 0 ? `<br>Buildings: <strong>${p.houses === 5 ? '1 Hotel 🏨' : p.houses + ' Houses 🏠'}</strong>` : ''}
+        </div>
+      `;
+      
+      elBody.innerHTML = detailsHtml + statusHtml;
+      elModalSpec.classList.add("active");
+    }
+
+    window.closeSpecModal = function() {
+      elModalSpec.classList.remove("active");
+    };
+
+    // Close modal when clicking outside
+    elModalSpec.addEventListener("click", (e) => {
+      if (e.target === elModalSpec) {
+        closeSpecModal();
+      }
+    });
+
+    // Run first render
+    refreshBoardView();
+
+    // Poll for changes every 1 second as a robust fallback
+    setInterval(refreshBoardView, 1000);
+  </script>
+</body>
+</html>

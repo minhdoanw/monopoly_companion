@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monopoly Engine - Automated Test Runner</title>
+  <style>
+    :root {
+      --bg-color: #0b0c10;
+      --panel-bg: #1f2833;
+      --text-main: #c5c6c7;
+      --text-highlight: #66fcf1;
+      --text-success: #4caf50;
+      --text-error: #f44336;
+      --border-color: #45f3ff;
+      --button-bg: #12cbc4;
+      --button-text: #050801;
+    }
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 24px;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background-color: var(--panel-bg);
+      border-radius: 12px;
+      border: 1px solid rgba(102, 252, 241, 0.2);
+      padding: 32px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
+    h1 {
+      color: var(--text-highlight);
+      margin-top: 0;
+      border-bottom: 2px solid rgba(102, 252, 241, 0.4);
+      padding-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .stats {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 24px;
+      background: rgba(0,0,0,0.2);
+      padding: 16px;
+      border-radius: 8px;
+    }
+    .stat-item {
+      flex: 1;
+      text-align: center;
+    }
+    .stat-val {
+      font-size: 24px;
+      font-weight: bold;
+      color: var(--text-highlight);
+    }
+    .stat-item.pass .stat-val { color: var(--text-success); }
+    .stat-item.fail .stat-val { color: var(--text-error); }
+    
+    .test-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .test-case {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 18px;
+      background: rgba(255,255,255,0.03);
+      border-left: 4px solid #777;
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+    .test-case:hover {
+      background: rgba(255,255,255,0.06);
+    }
+    .test-case.pass {
+      border-left-color: var(--text-success);
+    }
+    .test-case.fail {
+      border-left-color: var(--text-error);
+    }
+    .test-name {
+      font-weight: 600;
+    }
+    .test-status {
+      font-weight: bold;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    .test-case.pass .test-status {
+      color: var(--text-success);
+      background: rgba(76, 175, 80, 0.1);
+    }
+    .test-case.fail .test-status {
+      color: var(--text-error);
+      background: rgba(244, 67, 54, 0.1);
+    }
+    .error-details {
+      margin-top: 6px;
+      font-family: monospace;
+      font-size: 13px;
+      color: #ff9800;
+      white-space: pre-wrap;
+      width: 100%;
+      background: rgba(0,0,0,0.3);
+      padding: 8px;
+      border-radius: 4px;
+      display: none;
+    }
+    .test-case.fail .error-details {
+      display: block;
+    }
+    button {
+      background: var(--text-highlight);
+      color: var(--bg-color);
+      border: none;
+      padding: 10px 20px;
+      font-weight: bold;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: opacity 0.2s;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>
+      <span>Monopoly Engine - Test Suite</span>
+      <button onclick="runTests()">Run Tests</button>
+    </h1>
+
+    <div class="stats">
+      <div class="stat-item">
+        <div>Total Tests</div>
+        <div class="stat-val" id="stat-total">0</div>
+      </div>
+      <div class="stat-item pass">
+        <div>Passed</div>
+        <div class="stat-val" id="stat-passed">0</div>
+      </div>
+      <div class="stat-item fail">
+        <div>Failed</div>
+        <div class="stat-val" id="stat-failed">0</div>
+      </div>
+      <div class="stat-item">
+        <div>Duration</div>
+        <div class="stat-val" id="stat-time">0ms</div>
+      </div>
+    </div>
+
+    <div class="test-list" id="test-list-container">
+      <!-- Test cases injected here -->
+    </div>
+  </div>
+
+  <!-- Load Monopoly Engine -->
+  <script src="monopoly.js"></script>
+
+  <!-- Test Script -->
+  <script>
+    // Simple custom testing assertions
+    function assert(condition, message) {
+      if (!condition) {
+        throw new Error(message || "Assertion failed");
+      }
+    }
+
+    function assertEquals(actual, expected, message) {
+      if (actual !== expected) {
+        throw new Error(message || `Expected [${expected}] but got [${actual}]`);
+      }
+    }
+
+    const tests = [
+      {
+        name: "Test Game Setup & Initial State",
+        fn: () => {
+          Monopoly.initGame(
+            [{ name: "Alice", token: "token_car" }, { name: "Bob", token: "token_thimble" }],
+            "VN",
+            1500
+          );
+          const state = Monopoly.getState();
+          assertEquals(state.players.length, 2, "Should initialize 2 players");
+          assertEquals(state.players[0].name, "Alice", "First player name matches");
+          assertEquals(state.players[0].balance, 1500, "Starting balance is 1500");
+          assertEquals(state.players[0].position, 0, "Starts at GO (index 0)");
+          assertEquals(state.edition, "VN", "Edition is VN");
+          
+          // Verify property names dynamically updated to VN locations
+          const space39 = state.properties.find(p => p.id === 39);
+          assertEquals(space39.name, "Nguyễn Huệ", "Space 39 is Nguyễn Huệ (VN)");
+          assertEquals(space39.cost, 400, "Space 39 cost is $400");
+        }
+      },
+      {
+        name: "Test Bank/Player Transactions",
+        fn: () => {
+          Monopoly.initGame([{ name: "Alice" }, { name: "Bob" }], "VN", 1500);
+          
+          // Transfer money player to player
+          let res = Monopoly.executeTransaction("player_0", "player_1", 200, "PAY_RENT");
+          assert(res.success, "Should succeed transferring rent");
+          const state = Monopoly.getState();
+          assertEquals(state.players[0].balance, 1300, "Alice balance should drop by 200");
+          assertEquals(state.players[1].balance, 1700, "Bob balance should increase by 200");
+
+          // Test transaction failure (insufficient balance)
+          res = Monopoly.executeTransaction("player_0", "player_1", 2000, "PAY_RENT");
+          assert(!res.success, "Should fail transfer larger than balance");
+          assertEquals(state.players[0].balance, 1300, "Alice balance should remain unchanged");
+        }
+      },
+      {
+        name: "Test Property Purchase",
+        fn: () => {
+          Monopoly.initGame([{ name: "Alice" }, { name: "Bob" }], "VN", 1500);
+          
+          // Buy space 39 (Nguyễn Huệ)
+          const res = Monopoly.buyProperty("player_0", 39);
+          assert(res.success, "Should buy property successfully");
+          
+          const state = Monopoly.getState();
+          const p39 = state.properties.find(p => p.id === 39);
+          assertEquals(p39.ownerId, "player_0", "Alice should own Nguyễn Huệ");
+          assertEquals(state.players[0].balance, 1100, "Alice balance drops by $400");
+        }
+      },
+      {
+        name: "Test Basic Rent Collection",
+        fn: () => {
+          Monopoly.initGame([{ name: "Alice" }, { name: "Bob" }], "VN", 1500);
+          Monopoly.buyProperty("player_0", 39); // Alice buys Nguyễn Huệ
+          
+          // Calculate rent
+          const rent = Monopoly.calculateRent(39);
+          assertEquals(rent, 50, "Standard rent for Boardwalk/Nguyễn Huệ is 50");
+
+          // Execute Rent Payment
+          const res = Monopoly.triggerRentPayment("player_1", 39); // Bob pays Alice rent
+          assert(res.success, "Rent transaction succeeds");
+          
+          const state = Monopoly.getState();
+          assertEquals(state.players[1].balance, 1450, "Bob balance drops by $50");
+          assertEquals(state.players[0].balance, 1150, "Alice balance increases by $50");
+        }
+      },
+      {
+        name: "Test Color Set Ownership Rent Double",
+        fn: () => {
+          Monopoly.initGame([{ name: "Alice" }, { name: "Bob" }], "VN", 1500);
+          
+          // Dark Blue group consists of space 37 (Chợ Bến Thành) and 39 (Nguyễn Huệ)
+          Monopoly.buyProperty("player_0", 37);
+          Monopoly.buyProperty("player_0", 39);
+
+          // Full color set owned, rent should double from $50 to $100 for space 39
+          const rent39 = Monopoly.calculateRent(39);
+          assertEquals(rent39, 100, "Rent doubles since complete set is owned and no houses built");
+
+          // Rent for space 37 doubles from $35 to $70
+          const rent37 = Monopoly.calculateRent(37);
+          assertEquals(rent37, 70, "Rent doubles for Park Place/Chợ Bến Thành");
+        }
+      },
+      {
+        name: "Test Even Building Rules for Houses",
+        fn: () => {
+          Monopoly.initGame([{ name: "Alice" }, { name: "Bob" }], "VN", 1500);
+          Monopoly.buyProperty("player_0", 37);
+          Monopoly.buyProperty("player_0", 39);
+
+          // Build first house on Nguyễn Huệ (Space 39)
+          let res = Monopoly.buildHouse("player_0", 39);
+          assert(res.success, "Building first house succeeds");
+          
+          const state = Monopoly.getState();
+          const p39 = state.properties.find(p => p.id === 39);
+          assertEquals(p39.houses, 1, "Nguyễn Huệ has 1 house");
+
+          // Attempt to build a 2nd house on Space 39 (should fail, must build on Space 37 first)
+          res = Monopoly.buildHouse("player_0", 39);
+          assert(!res.success, "Building 2nd house fails due to even-building constraint");
+          
+          // Build house on Chợ Bến Thành (Space 37)
+          res = Monopoly.buildHouse("player_0", 37);
+          assert(res.success, "Building house on Chợ Bến Thành succeeds");
+          
+          // Now building 2nd house on Nguyễn Huệ should work
+          res = Monopoly.buildHouse("player_0", 39);
+          assert(res.success, "Building 2nd house on Nguyễn Huệ succeeds now");
+          assertEquals(p39.houses, 2, "Nguyễn Huệ now has 2 houses");
+        }
+      },
+      {
+        name: "Test House/Hotel Rent Escalation",
+        fn: () => {
+          Monopoly.initGame([{ name: "Alice" }, { name: "Bob" }], "VN", 15000); // Higher cash for setup
+          Monopoly.buyProperty("player_0", 37);
+          Monopoly.buyProperty("player_0", 39);
+
+          // Build up to 5 houses (Hotel) on Nguyễn Huệ (Space 39)
+          // Sequence: 39(1), 37(1), 39(2), 37(2), 39(3), 37(3), 39(4), 37(4), 39(5)
+          Monopoly.buildHouse("player_0", 39);
+          Monopoly.buildHouse("player_0", 37);
+          
+          Monopoly.buildHouse("player_0", 39);
+          Monopoly.buildHouse("player_0", 37);
+          
+          Monopoly.buildHouse("player_0", 39);
+          Monopoly.buildHouse("player_0", 37);
+          
+          Monopoly.buildHouse("player_0", 39);
+          Monopoly.buildHouse("player_0", 37);
+          
+          let res = Monopoly.buildHouse("player_0", 39); // Build hotel (5th building)
+          assert(res.success, "Hotel built successfully");
+
+          const rent = Monopoly.calculateRent(39);
+          assertEquals(rent, 2000, "Boardwalk/Nguyễn Huệ rent with Hotel is 2000");
+        }
+      },
+      {
+        name: "Test Mortgaging & Rent Prevention",
+        fn: () => {
+          Monopoly.initGame([{ name: "Alice" }, { name: "Bob" }], "VN", 1500);
+          Monopoly.buyProperty("player_0", 39); // Alice buys Nguyễn Huệ
+          
+          // Mortgage
+          let res = Monopoly.mortgageProperty("player_0", 39);
+          assert(res.success, "Mortgage succeeds");
+          
+          const state = Monopoly.getState();
+          const p39 = state.properties.find(p => p.id === 39);
+          assert(p39.isMortgaged, "Property is flagged mortgaged");
+          assertEquals(state.players[0].balance, 1300, "Received $200 mortgage cash (1100 + 200)");
+
+          // Mortgaged property rent is 0
+          const rent = Monopoly.calculateRent(39);
+          assertEquals(rent, 0, "Rent is 0 when property is mortgaged");
+
+          // Unmortgage costs mortgageValue + 10% (200 + 20 = 220)
+          res = Monopoly.unmortgageProperty("player_0", 39);
+          assert(res.success, "Unmortgage succeeds");
+          assertEquals(state.players[0].balance, 1080, "Alice balance is 1300 - 220 = 1080");
+          assert(!p39.isMortgaged, "Property is no longer mortgaged");
+        }
+      },
+      {
+        name: "Test Railroad Rent Scaling",
+        fn: () => {
+          Monopoly.initGame([{ name: "Alice" }, { name: "Bob" }], "VN", 1500);
+          
+          // Railroads: 5, 15, 25, 35
+          Monopoly.buyProperty("player_0", 5);
+          assertEquals(Monopoly.calculateRent(5), 25, "1 railroad owned rent = 25");
+
+          Monopoly.buyProperty("player_0", 15);
+          assertEquals(Monopoly.calculateRent(5), 50, "2 railroads owned rent = 50");
+
+          Monopoly.buyProperty("player_0", 25);
+          assertEquals(Monopoly.calculateRent(5), 100, "3 railroads owned rent = 100");
+
+          Monopoly.buyProperty("player_0", 35);
+          assertEquals(Monopoly.calculateRent(5), 200, "4 railroads owned rent = 200");
+        }
+      },
+      {
+        name: "Test Utility Rent Multipliers",
+        fn: () => {
+          Monopoly.initGame([{ name: "Alice" }, { name: "Bob" }], "VN", 1500);
+          
+          // Utilities: 12 (Electric), 28 (Water Works)
+          Monopoly.buyProperty("player_0", 12);
+          
+          // Rent with 1 Utility = 4x dice roll
+          let rent = Monopoly.calculateRent(12, 7); // roll 7
+          assertEquals(rent, 28, "1 utility rent with roll 7 is 7 * 4 = 28");
+
+          // Buy second utility
+          Monopoly.buyProperty("player_0", 28);
+          
+          // Rent with 2 Utilities = 10x dice roll
+          rent = Monopoly.calculateRent(12, 7); // roll 7
+          assertEquals(rent, 70, "2 utilities rent with roll 7 is 7 * 10 = 70");
+        }
+      },
+      {
+        name: "Test Jail State Escape (Pay vs Roll)",
+        fn: () => {
+          Monopoly.initGame([{ name: "Alice" }, { name: "Bob" }], "VN", 1500);
+          
+          // Mock in jail
+          const state = Monopoly.getState();
+          const player = state.players[0];
+          player.inJail = true;
+          player.position = 10;
+
+          // Pay fine to get out
+          let res = Monopoly.payJailFine("player_0");
+          assert(res.success, "Paying jail fine succeeds");
+          assert(!player.inJail, "Player released from Jail");
+          assertEquals(player.balance, 1450, "Alice balance is 1500 - 50 = 1450");
+        }
+      },
+      {
+        name: "Test Event Sourcing Ledger & Undo",
+        fn: () => {
+          Monopoly.initGame([{ name: "Alice" }, { name: "Bob" }], "VN", 1500);
+          
+          // Initial balance is 1500 for both
+          // Action 1: Alice buys Space 1 (Chợ Bình Tây) for $60. Alice balance = 1440
+          Monopoly.buyProperty("player_0", 1);
+          // Action 2: Alice transfers $100 to Bob. Alice = 1340, Bob = 1600
+          Monopoly.executeTransaction("player_0", "player_1", 100, "TRADE");
+
+          const state = Monopoly.getState();
+          assertEquals(state.players[0].balance, 1340, "Alice balance is 1340");
+          assertEquals(state.players[1].balance, 1600, "Bob balance is 1600");
+          assertEquals(state.history.length, 3, "Setup + 2 actions = 3 events");
+
+          // Undo Action 2 (Alice transfer to Bob)
+          let undoRes = Monopoly.undoLastEvent();
+          assert(undoRes, "Undo action 2 succeeds");
+          assertEquals(state.players[0].balance, 1440, "Alice balance restored to 1440");
+          assertEquals(state.players[1].balance, 1500, "Bob balance restored to 1500");
+          assertEquals(state.history.length, 2, "History length goes back to 2");
+
+          // Undo Action 1 (Alice buying Space 1)
+          undoRes = Monopoly.undoLastEvent();
+          assert(undoRes, "Undo action 1 succeeds");
+          assertEquals(state.players[0].balance, 1500, "Alice balance restored to 1500");
+          const p1 = state.properties.find(p => p.id === 1);
+          assertEquals(p1.ownerId, null, "Space 1 ownership returned to null");
+          assertEquals(state.history.length, 1, "History length goes back to 1 (setup state)");
+        }
+      },
+      {
+        name: "Test LocalStorage Serialization & Caching",
+        fn: () => {
+          Monopoly.initGame([{ name: "Alice" }, { name: "Bob" }], "VN", 1500);
+          
+          // Alter state
+          Monopoly.buyProperty("player_0", 39); // Alice buys Boardwalk/Nguyễn Huệ
+          const originalState = Monopoly.getState();
+          
+          // Force save
+          Monopoly.saveToLocalStorage();
+
+          // Wipe active memory state manually without saving to localStorage
+          const activeState = Monopoly.getState();
+          activeState.players = [{ name: "Charlie", id: "player_temp" }];
+          activeState.edition = "US";
+          
+          // Verify memory changed
+          let state = Monopoly.getState();
+          assertEquals(state.players[0].name, "Charlie", "Wiped memory state contains Charlie");
+          
+          // Restore from localStorage
+          const loadRes = Monopoly.loadFromLocalStorage();
+          assert(loadRes, "Successfully loaded state from localStorage");
+
+          // Verify state restored
+          state = Monopoly.getState();
+          assertEquals(state.players.length, 2, "Restored 2 players");
+          assertEquals(state.players[0].name, "Alice", "Player 0 is Alice again");
+          assertEquals(state.edition, "VN", "Edition restored to VN");
+          
+          const p39 = state.properties.find(p => p.id === 39);
+          assertEquals(p39.ownerId, "player_0", "Alice owns Nguyễn Huệ after restore");
+          
+          // Clean up
+          Monopoly.clearLocalStorage();
+        }
+      }
+    ];
+
+    function runTests() {
+      const container = document.getElementById("test-list-container");
+      container.innerHTML = "";
+      
+      let passed = 0;
+      let failed = 0;
+      const startTime = performance.now();
+
+      tests.forEach(test => {
+        const div = document.createElement("div");
+        div.className = "test-case";
+        
+        const details = document.createElement("div");
+        details.className = "error-details";
+
+        const nameSpan = document.createElement("span");
+        nameSpan.className = "test-name";
+        nameSpan.innerText = test.name;
+
+        const statusSpan = document.createElement("span");
+        statusSpan.className = "test-status";
+        statusSpan.innerText = "RUNNING";
+
+        div.appendChild(nameSpan);
+        div.appendChild(statusSpan);
+        div.appendChild(details);
+        container.appendChild(div);
+
+        try {
+          test.fn();
+          div.className = "test-case pass";
+          statusSpan.innerText = "PASS";
+          passed++;
+        } catch (e) {
+          div.className = "test-case fail";
+          statusSpan.innerText = "FAIL";
+          details.innerText = e.stack || e.message;
+          failed++;
+        }
+      });
+
+      const endTime = performance.now();
+      const duration = Math.round(endTime - startTime);
+
+      document.getElementById("stat-total").innerText = tests.length;
+      document.getElementById("stat-passed").innerText = passed;
+      document.getElementById("stat-failed").innerText = failed;
+      document.getElementById("stat-time").innerText = `${duration}ms`;
+    }
+
+    // Run automatically on load
+    window.onload = runTests;
+  </script>
+</body>
+</html>
