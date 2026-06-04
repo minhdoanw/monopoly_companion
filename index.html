@@ -115,8 +115,8 @@
 
           <div class="control-actions">
             <!-- Dice Roller -->
-            <div class="dice-roller-container" style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
-              <div class="dice-mode-toggle" style="display: flex; gap: 8px; align-items: center; margin-bottom: 2px;">
+            <div class="dice-roller-container" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; width: 100%; padding: 8px 12px; box-sizing: border-box;">
+              <div class="dice-mode-toggle" style="display: flex; flex-direction: column; gap: 4px; margin-right: 4px;">
                 <label style="cursor: pointer; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; color: var(--text-dim); user-select: none;">
                   <input type="radio" name="dice-mode" id="dice-mode-digital" value="digital" checked style="accent-color: var(--color-primary);">
                   📱 Digital
@@ -134,10 +134,10 @@
               </div>
 
               <!-- Manual Inputs -->
-              <div class="manual-dice-box" id="dice-manual-box" style="display: none; align-items: center; gap: 8px; margin-bottom: 2px;">
-                <div style="display: flex; flex-direction: column; gap: 2px; align-items: center;">
-                  <span style="font-size: 9px; color: var(--text-dim); text-transform: uppercase; font-weight: 600;">Die 1</span>
-                  <select id="manual-die-1" class="form-input form-input-sm" style="width: 64px; height: 32px; padding: 2px 6px; text-align: center; font-weight: bold; font-size: 13px;">
+              <div class="manual-dice-box" id="dice-manual-box" style="display: none; align-items: center; gap: 8px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <span style="font-size: 9px; color: var(--text-dim); text-transform: uppercase; font-weight: 600; white-space: nowrap;">Die 1</span>
+                  <select id="manual-die-1" class="form-input form-input-sm" style="width: 58px; height: 32px; padding: 2px 4px; text-align: center; font-weight: bold; font-size: 13px;">
                     <option value="1">1 ⚀</option>
                     <option value="2">2 ⚁</option>
                     <option value="3">3 ⚂</option>
@@ -146,9 +146,9 @@
                     <option value="6">6 ⚅</option>
                   </select>
                 </div>
-                <div style="display: flex; flex-direction: column; gap: 2px; align-items: center;">
-                  <span style="font-size: 9px; color: var(--text-dim); text-transform: uppercase; font-weight: 600;">Die 2</span>
-                  <select id="manual-die-2" class="form-input form-input-sm" style="width: 64px; height: 32px; padding: 2px 6px; text-align: center; font-weight: bold; font-size: 13px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <span style="font-size: 9px; color: var(--text-dim); text-transform: uppercase; font-weight: 600; white-space: nowrap;">Die 2</span>
+                  <select id="manual-die-2" class="form-input form-input-sm" style="width: 58px; height: 32px; padding: 2px 4px; text-align: center; font-weight: bold; font-size: 13px;">
                     <option value="1">1 ⚀</option>
                     <option value="2">2 ⚁</option>
                     <option value="3">3 ⚂</option>
@@ -159,7 +159,7 @@
                 </div>
               </div>
 
-              <button id="btn-roll-dice" class="btn btn-primary" style="width: 100%;">Roll Dice</button>
+              <button id="btn-roll-dice" class="btn btn-primary" style="flex: 1; min-height: 44px; min-width: 120px;">Roll Dice</button>
             </div>
 
             <!-- Contextual action tools -->
