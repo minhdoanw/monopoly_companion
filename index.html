@@ -596,6 +596,21 @@
     let setupPlayerCount = 4;
     let selectedPropertyId = null;
 
+    let cachedPlayers = null;
+    try {
+      const cachedData = localStorage.getItem("monopoly_companion_cached_players");
+      if (cachedData) {
+        cachedPlayers = JSON.parse(cachedData);
+        if (Array.isArray(cachedPlayers) && cachedPlayers.length >= 2) {
+          setupPlayerCount = cachedPlayers.length;
+        } else {
+          cachedPlayers = null;
+        }
+      }
+    } catch (e) {
+      console.error("Failed to parse cached player data:", e);
+    }
+
     // DOM Elements Cache
     const elSetupScreen = document.getElementById("setup-screen");
     const elGameScreen = document.getElementById("game-screen");
@@ -642,17 +657,46 @@
     const elModalBankruptcy = document.getElementById("modal-bankruptcy");
 
     // ─── SETUP HANDLERS ───────────────────────────────────────────────────────
+    function escapeHtml(str) {
+      if (!str) return "";
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
     function renderSetupPlayers() {
+      // Preserve current screen inputs if any to prevent loss of typed edits when count changes
+      const currentNames = Array.from(document.querySelectorAll(".player-setup-name")).map(el => el.value);
+      const currentTokens = Array.from(document.querySelectorAll(".player-setup-token")).map(el => el.value);
+      const currentColors = Array.from(document.querySelectorAll(".player-setup-color")).map(el => el.value);
+
       elPlayerInputsList.innerHTML = "";
       for (let i = 0; i < setupPlayerCount; i++) {
+        let nameVal = `Player ${i + 1}`;
+        let tokenVal = DEFAULT_TOKENS[i % DEFAULT_TOKENS.length];
+        let colorVal = DEFAULT_COLORS[i % DEFAULT_COLORS.length];
+
+        if (currentNames[i] !== undefined) {
+          nameVal = currentNames[i];
+          tokenVal = currentTokens[i];
+          colorVal = currentColors[i];
+        } else if (cachedPlayers && cachedPlayers[i]) {
+          nameVal = cachedPlayers[i].name;
+          tokenVal = cachedPlayers[i].token;
+          colorVal = cachedPlayers[i].color;
+        }
+
         const row = document.createElement("div");
         row.className = "player-setup-row";
         row.innerHTML = `
-          <input type="text" class="form-input player-setup-name" value="Player ${i + 1}" placeholder="Player Name" required>
+          <input type="text" class="form-input player-setup-name" value="${escapeHtml(nameVal)}" placeholder="Player Name" required>
           <select class="form-input player-setup-token" style="width: 70px;">
-            ${DEFAULT_TOKENS.map((t, idx) => `<option value="${t}" ${idx === i % DEFAULT_TOKENS.length ? 'selected' : ''}>${t}</option>`).join("")}
+            ${DEFAULT_TOKENS.map(t => `<option value="${t}" ${t === tokenVal ? 'selected' : ''}>${t}</option>`).join("")}
           </select>
-          <input type="color" class="color-picker-input player-setup-color" value="${DEFAULT_COLORS[i % DEFAULT_COLORS.length]}">
+          <input type="color" class="color-picker-input player-setup-color" value="${colorVal}">
           ${setupPlayerCount > 2 ? `<button type="button" class="btn-remove-row" onclick="removeSetupPlayerRow(${i})">&times;</button>` : ''}
         `;
         elPlayerInputsList.appendChild(row);
@@ -688,6 +732,10 @@
           color: colors[i].value
         });
       }
+
+      // Cache player names and settings for future sessions
+      localStorage.setItem("monopoly_companion_cached_players", JSON.stringify(playerList));
+      cachedPlayers = playerList;
 
       const edition = elSetupEdition.value;
       const startCash = parseInt(elSetupStartingCash.value) || 1500;
