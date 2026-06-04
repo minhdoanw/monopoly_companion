@@ -39,7 +39,21 @@
       flex-direction: column;
       gap: 16px;
       height: 100%;
-      justify-content: center;
+      justify-content: flex-start;
+      overflow-y: auto;
+      max-height: 100vh;
+      box-sizing: border-box;
+      padding: 20px 4px 20px 0;
+    }
+    .board-sidebar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .board-sidebar::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+    }
+    .board-sidebar::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.25);
     }
     
     /* Right column for the board itself */
@@ -362,10 +376,15 @@
 </head>
 <body>
 
-  <!-- Fullscreen Toggle Button -->
-  <button id="btn-fullscreen-spec" class="btn-fs">
-    <span>⛶</span> Fullscreen View
-  </button>
+  <!-- Top Right Control Panel -->
+  <div class="top-controls-container" style="position: absolute; top: 16px; right: 16px; z-index: 50; display: flex; gap: 10px;">
+    <button id="btn-toggle-layout" class="btn-fs" style="position: static;">
+      <span>🎛️</span> Show Detailed Cards
+    </button>
+    <button id="btn-fullscreen-spec" class="btn-fs" style="position: static;">
+      <span>⛶</span> Fullscreen View
+    </button>
+  </div>
 
   <!-- No session state overlay -->
   <div id="no-session-overlay" class="no-session-overlay">
@@ -430,8 +449,29 @@
     const elSpectatorDiceBox = document.getElementById("spectator-dice-box");
     const elSpectatorPlayersList = document.getElementById("spectator-players-list");
     const elBtnFullscreenSpec = document.getElementById("btn-fullscreen-spec");
+    const elBtnToggleLayout = document.getElementById("btn-toggle-layout");
     
     const elModalSpec = document.getElementById("spectator-modal");
+
+    let showDetailedPlayerCards = localStorage.getItem("monopoly_spec_detailed_cards") === "true";
+
+    function updateToggleLayoutButtonText() {
+      if (showDetailedPlayerCards) {
+        elBtnToggleLayout.innerHTML = `<span>🎛️</span> Show Simple List`;
+      } else {
+        elBtnToggleLayout.innerHTML = `<span>🎛️</span> Show Detailed Cards`;
+      }
+    }
+
+    if (elBtnToggleLayout) {
+      updateToggleLayoutButtonText();
+      elBtnToggleLayout.addEventListener("click", () => {
+        showDetailedPlayerCards = !showDetailedPlayerCards;
+        localStorage.setItem("monopoly_spec_detailed_cards", showDetailedPlayerCards ? "true" : "false");
+        updateToggleLayoutButtonText();
+        refreshBoardView();
+      });
+    }
 
     // ─── INITIALIZE AND SYNC ──────────────────────────────────────────────────
     function refreshBoardView() {
@@ -477,30 +517,86 @@
     // ─── RENDER PLAYERS LIST ──────────────────────────────────────────────────
     function renderPlayers(state, edition) {
       elSpectatorPlayersList.innerHTML = "";
-      state.players.forEach((p, idx) => {
-        const item = document.createElement("div");
-        item.className = `spectator-player-item ${idx === state.currentPlayerIndex ? 'active-turn' : ''} ${p.isBankrupt ? 'bankrupt' : ''}`;
-        
-        let statusText = "Active";
-        if (p.isBankrupt) statusText = "Bankrupt";
-        else if (p.inJail) statusText = "In Jail 🔒";
+      
+      if (showDetailedPlayerCards) {
+        elSpectatorPlayersList.className = "spectator-detailed-cards";
+        state.players.forEach((p, idx) => {
+          const isCurrent = idx === state.currentPlayerIndex;
+          const formattedCash = Monopoly.getFormattedAmount(p.balance);
+          
+          let statusBadge = `<span class="player-status-badge active">Active</span>`;
+          if (p.inJail) statusBadge = `<span class="player-status-badge jail">In Jail</span>`;
+          if (p.isBankrupt) statusBadge = `<span class="player-status-badge bankrupt">Bankrupt</span>`;
 
-        if (p.getOutOfJailCards > 0) {
-          statusText += ` | 🎟️ x${p.getOutOfJailCards}`;
-        }
+          const playerProps = state.properties.filter(pr => pr.ownerId === p.id);
+          const propBadges = playerProps.map(pr => {
+            const colorVal = getGroupColor(pr.group);
+            const houseText = pr.houses === 5 ? "🏨" : pr.houses > 0 ? `🏠x${pr.houses}` : "";
+            const mortText = pr.isMortgaged ? "🚫" : "";
+            return `
+              <span class="prop-badge ${pr.isMortgaged ? 'mortgaged' : ''}" style="background-color: ${colorVal}; color: ${pr.group === 'yellow' || pr.group === 'light-blue' ? '#222' : '#fff'}">
+                ${pr.name} ${houseText} ${mortText}
+              </span>`;
+          }).join("");
 
-        item.innerHTML = `
-          <div class="player-identity">
-            <span class="player-badge" style="background: ${p.color};">${p.token}</span>
-            <div class="player-details">
-              <span class="name">${p.name}</span>
-              <span class="status">${statusText}</span>
+          let jailCardsBadge = "";
+          if (p.getOutOfJailCards > 0) {
+            jailCardsBadge = `<span class="player-status-badge jail-card" title="Get Out of Jail Free Card">🎟️ x${p.getOutOfJailCards}</span>`;
+          }
+
+          const card = document.createElement("div");
+          card.className = `player-card glass ${isCurrent ? 'active-player-glow' : ''}`;
+          card.style.setProperty("--player-color", p.color);
+          card.style.marginBottom = "12px";
+          
+          card.innerHTML = `
+            <div class="player-card-header" style="margin-bottom: 8px;">
+              <div class="player-name-group">
+                <div class="avatar-circle" style="border-color: ${p.color};">${p.token}</div>
+                <h3 style="margin: 0; font-size: 16px;">${p.name}</h3>
+              </div>
+              <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+                ${statusBadge}
+                ${jailCardsBadge}
+              </div>
             </div>
-          </div>
-          <div class="player-balance">${Monopoly.getFormattedAmount(p.balance)}</div>
-        `;
-        elSpectatorPlayersList.appendChild(item);
-      });
+            <div class="player-card-balance" style="font-size: 20px; margin-bottom: 8px;">${formattedCash}</div>
+            <div class="player-assets">
+              <div class="assets-label" style="font-size: 11px;">Properties Owned (${playerProps.length})</div>
+              <div class="properties-badges-list">
+                ${propBadges || '<span style="color: var(--text-dim); font-style: italic;">None</span>'}
+              </div>
+            </div>
+          `;
+          elSpectatorPlayersList.appendChild(card);
+        });
+      } else {
+        elSpectatorPlayersList.className = "spectator-simple-list";
+        state.players.forEach((p, idx) => {
+          const item = document.createElement("div");
+          item.className = `spectator-player-item ${idx === state.currentPlayerIndex ? 'active-turn' : ''} ${p.isBankrupt ? 'bankrupt' : ''}`;
+          
+          let statusText = "Active";
+          if (p.isBankrupt) statusText = "Bankrupt";
+          else if (p.inJail) statusText = "In Jail 🔒";
+
+          if (p.getOutOfJailCards > 0) {
+            statusText += ` | 🎟️ x${p.getOutOfJailCards}`;
+          }
+
+          item.innerHTML = `
+            <div class="player-identity">
+              <span class="player-badge" style="background: ${p.color};">${p.token}</span>
+              <div class="player-details">
+                <span class="name">${p.name}</span>
+                <span class="status">${statusText}</span>
+              </div>
+            </div>
+            <div class="player-balance">${Monopoly.getFormattedAmount(p.balance)}</div>
+          `;
+          elSpectatorPlayersList.appendChild(item);
+        });
+      }
     }
 
     // ─── RENDER 11x11 BOARD GRID ──────────────────────────────────────────────

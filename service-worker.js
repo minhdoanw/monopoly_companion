@@ -1,4 +1,4 @@
-const CACHE_NAME = 'monopoly-companion-v14';
+const CACHE_NAME = 'monopoly-companion-v15';
 const ASSETS_TO_CACHE = [
   './',
   'index.html',
