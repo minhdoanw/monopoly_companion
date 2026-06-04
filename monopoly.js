@@ -426,7 +426,7 @@ const Monopoly = (() => {
     bank: { balance: 20500 },
     properties: [],
     currentPlayerIndex: 0,
-    dice: { values: [1, 1], doublesCount: 0, lastRolled: false },
+    dice: { values: [1, 1], doublesCount: 0, lastRolled: false, rollAgainAllowed: false },
     landedActionResolved: true,
     chanceDeck: [],
     chestDeck: [],
@@ -470,7 +470,7 @@ const Monopoly = (() => {
   function initGame(playerList, selectedEdition = "VN", startingCash = 1500) {
     state.edition = selectedEdition;
     state.currentPlayerIndex = 0;
-    state.dice = { values: [1, 1], doublesCount: 0, lastRolled: false };
+    state.dice = { values: [1, 1], doublesCount: 0, lastRolled: false, rollAgainAllowed: false };
     state.landedActionResolved = true;
     state.history = [];
     state.bank = { balance: 20500 };
@@ -932,8 +932,11 @@ const Monopoly = (() => {
     return { success: true };
   }
 
-  // ─── PLAYER POSITION & GAMEPLAY MECHANICS ────────────────────────────────────
   function rollDice(overrideD1, overrideD2) {
+    if (state.dice.lastRolled && !state.dice.rollAgainAllowed) {
+      return { values: state.dice.values, isDouble: false, error: "Already rolled this turn" };
+    }
+
     const d1 = (overrideD1 !== undefined && overrideD1 !== null) ? parseInt(overrideD1) : Math.floor(Math.random() * 6) + 1;
     const d2 = (overrideD2 !== undefined && overrideD2 !== null) ? parseInt(overrideD2) : Math.floor(Math.random() * 6) + 1;
     const sum = d1 + d2;
@@ -951,17 +954,17 @@ const Monopoly = (() => {
         player.inJail = false;
         player.jailTurns = 0;
         state.dice.doublesCount = 0;
+        state.dice.rollAgainAllowed = false;
         movePlayer(player, sum);
         checkLandedSpaceAction(player);
         jailActionDesc = `${player.name} rolled doubles (${d1}, ${d2}) and escaped Jail! Moved to ${getCurrentProperty(player).name}`;
       } else {
         player.jailTurns++;
+        state.dice.rollAgainAllowed = false;
         if (player.jailTurns >= 3) {
-          // Force pay $50 to get out on 3rd turn failure
           player.inJail = false;
           player.jailTurns = 0;
-          player.balance -= 50;
-          state.bank.balance += 50;
+          executeTransaction(player.id, "bank", 50, "JAIL_FINE");
           movePlayer(player, sum);
           checkLandedSpaceAction(player);
           jailActionDesc = `${player.name} failed to roll doubles for 3 turns. Forced to pay $50 fine and moved to ${getCurrentProperty(player).name}`;
@@ -976,16 +979,24 @@ const Monopoly = (() => {
         if (state.dice.doublesCount === 3) {
           sendToJail(state, player);
           state.dice.doublesCount = 0;
-          state.dice.lastRolled = true; // Turn ends, but rolling doubles is reset
+          state.dice.lastRolled = true;
+          state.dice.rollAgainAllowed = false;
           state.landedActionResolved = true;
           jailActionDesc = `${player.name} rolled 3 consecutive doubles and went directly to JAIL!`;
         } else {
           movePlayer(player, sum);
           checkLandedSpaceAction(player);
-          jailActionDesc = `${player.name} rolled doubles (${d1}, ${d2}). Moves to ${getCurrentProperty(player).name} and rolls again.`;
+          if (player.inJail) {
+            state.dice.rollAgainAllowed = false;
+            jailActionDesc = `${player.name} rolled doubles (${d1}, ${d2}), moved to Go To Jail space and was sent to Jail.`;
+          } else {
+            state.dice.rollAgainAllowed = true;
+            jailActionDesc = `${player.name} rolled doubles (${d1}, ${d2}). Moves to ${getCurrentProperty(player).name} and rolls again.`;
+          }
         }
       } else {
         state.dice.doublesCount = 0;
+        state.dice.rollAgainAllowed = false;
         movePlayer(player, sum);
         checkLandedSpaceAction(player);
         jailActionDesc = `${player.name} rolled (${d1}, ${d2}) and moved to ${getCurrentProperty(player).name}`;
@@ -1070,6 +1081,8 @@ const Monopoly = (() => {
     player.inJail = true;
     player.jailTurns = 0;
     player.position = 10; // Jail Space is index 10
+    s.dice.doublesCount = 0;
+    s.dice.rollAgainAllowed = false;
     logEvent("JAIL", `${player.name} was sent directly to Jail`);
   }
 
@@ -1109,6 +1122,7 @@ const Monopoly = (() => {
 
     state.dice.lastRolled = false;
     state.dice.doublesCount = 0;
+    state.dice.rollAgainAllowed = false;
     state.landedActionResolved = true; // Clear resolved state for new turn (must roll to proceed)
 
     const nextPlayer = state.players[state.currentPlayerIndex];

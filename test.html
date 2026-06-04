@@ -565,6 +565,29 @@
           
           assertEquals(player.position, 10, "Player should be sent directly to jail (space 10)");
           assertEquals(player.inJail, true, "Player should be in jail");
+          assertEquals(state.dice.rollAgainAllowed, false, "Should not be allowed to roll again after going to jail");
+        }
+      },
+      {
+        name: "Test Escaping Jail with Doubles does not grant another roll",
+        fn: () => {
+          Monopoly.initGame(
+            [{ name: "Alice", token: "token_car" }, { name: "Bob", token: "token_thimble" }],
+            "VN",
+            1500
+          );
+          
+          const state = Monopoly.getState();
+          const player = state.players[0];
+          player.inJail = true;
+          player.position = 10;
+          
+          // Roll doubles inside jail
+          Monopoly.rollDice(4, 4);
+          
+          assertEquals(player.inJail, false, "Player should be released from jail");
+          assertEquals(player.position, 18, "Player should move to space 18");
+          assertEquals(state.dice.rollAgainAllowed, false, "Should not get another turn when escaping jail via doubles");
         }
       }
     ];

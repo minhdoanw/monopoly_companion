@@ -792,8 +792,8 @@
       const rolled = state.dice.lastRolled;
       const isDoubles = state.dice.values[0] === state.dice.values[1];
 
-      // Roller enabled if haven't rolled OR rolled doubles and doubles Count is less than 3
-      const isRollerDisabled = rolled && !isDoubles;
+      // Roller enabled if haven't rolled OR rolled doubles and rollAgainAllowed is true
+      const isRollerDisabled = rolled && !state.dice.rollAgainAllowed;
       elBtnRollDice.disabled = isRollerDisabled;
       document.getElementById("manual-die-1").disabled = isRollerDisabled;
       document.getElementById("manual-die-2").disabled = isRollerDisabled;
