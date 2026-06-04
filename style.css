@@ -1250,21 +1250,21 @@ h1, h2, h3, h4, .app-title {
 
 .landed-players-tokens {
   display: flex;
-  gap: 2px;
+  gap: 3px;
   flex-shrink: 0;
 }
 
 .landed-token {
-  width: 20px;
-  height: 20px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
-  border: 1px solid #fff;
+  font-size: 16.5px;
+  border: 1.5px solid #fff;
   color: #fff;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  box-shadow: 0 1.5px 4.5px rgba(0,0,0,0.3);
   font-weight: bold;
 }
 
@@ -1452,19 +1452,23 @@ h1, h2, h3, h4, .app-title {
 /* Position tokens relative to the cell */
 .board-space .landed-players-tokens {
   position: absolute;
-  top: 0.2cqw;
-  right: 0.2cqw;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
-  gap: 0.1cqw;
+  justify-content: center;
+  align-items: center;
+  gap: 0.15cqw;
   z-index: 3;
+  pointer-events: none;
 }
 
 .board-space .landed-token {
-  width: 1.6cqw;
-  height: 1.6cqw;
-  font-size: 0.9cqw;
-  border: 0.05cqw solid #fff;
-  box-shadow: 0 0.1cqw 0.2cqw rgba(0,0,0,0.4);
+  width: 2.4cqw;
+  height: 2.4cqw;
+  font-size: 1.35cqw;
+  border: 0.075cqw solid #fff;
+  box-shadow: 0 0.15cqw 0.3cqw rgba(0,0,0,0.4);
 }
 
 /* ==========================================================================
