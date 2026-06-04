@@ -483,6 +483,7 @@ h1, h2, h3, h4, .app-title {
   gap: 10px;
   flex: 1;
   min-width: 250px;
+  justify-content: flex-end;
 }
 
 /* ─── PLAYERS FINANCIAL OVERVIEW ────────────────────────────────────────── */
