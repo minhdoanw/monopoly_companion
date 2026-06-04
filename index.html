@@ -105,23 +105,23 @@
         
         <!-- TURN CONTROLLER & DICE AREA -->
         <section class="game-control-card glass">
-          <div class="turn-indicator">
-            <span class="label">Current Turn:</span>
-            <div class="player-token-display">
-              <span id="current-player-avatar" class="avatar-emoji">🚗</span>
-              <span id="current-player-name" class="name">Player Name</span>
+          <div class="turn-dice-row" style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; width: 100%;">
+            <div class="turn-indicator" style="margin-bottom: 0;">
+              <span class="label">Current Turn:</span>
+              <div class="player-token-display">
+                <span id="current-player-avatar" class="avatar-emoji">🚗</span>
+                <span id="current-player-name" class="name">Player Name</span>
+              </div>
             </div>
-          </div>
 
-          <div class="control-actions">
             <!-- Dice Roller -->
-            <div class="dice-roller-container" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; width: 100%; padding: 8px 12px; box-sizing: border-box;">
+            <div class="dice-roller-container" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 8px 12px; box-sizing: border-box;">
               <div class="dice-mode-toggle" style="display: flex; flex-direction: column; gap: 4px; margin-right: 4px;">
-                <label style="cursor: pointer; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; color: var(--text-dim); user-select: none;">
+                <label style="cursor: pointer; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; color: var(--text-dim); user-select: none; margin-bottom: 0;">
                   <input type="radio" name="dice-mode" id="dice-mode-digital" value="digital" checked style="accent-color: var(--color-primary);">
                   📱 Digital
                 </label>
-                <label style="cursor: pointer; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; color: var(--text-dim); user-select: none;">
+                <label style="cursor: pointer; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; color: var(--text-dim); user-select: none; margin-bottom: 0;">
                   <input type="radio" name="dice-mode" id="dice-mode-manual" value="manual" style="accent-color: var(--color-primary);">
                   🎲 Physical
                 </label>
@@ -161,9 +161,11 @@
 
               <button id="btn-roll-dice" class="btn btn-primary" style="flex: 1; min-height: 44px; min-width: 120px;">Roll Dice</button>
             </div>
+          </div>
 
+          <div class="control-actions" style="margin-top: 12px; width: 100%;">
             <!-- Contextual action tools -->
-            <div class="context-actions">
+            <div class="context-actions" style="width: 100%; display: flex; gap: 12px; flex-wrap: wrap;">
               <button id="btn-draw-chance" class="btn btn-warning btn-chance" disabled>Draw Chance</button>
               <button id="btn-draw-chest" class="btn btn-primary btn-chest" disabled>Draw Chest</button>
               <button id="btn-pass-go" class="btn btn-success">Pass GO (+$200)</button>

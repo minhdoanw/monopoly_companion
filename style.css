@@ -1255,16 +1255,16 @@ h1, h2, h3, h4, .app-title {
 }
 
 .landed-token {
-  width: 30px;
-  height: 30px;
+  width: 45px;
+  height: 45px;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 16.5px;
-  border: 1.5px solid #fff;
+  font-size: 25px;
+  border: 2px solid #fff;
   color: #fff;
-  box-shadow: 0 1.5px 4.5px rgba(0,0,0,0.3);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
   font-weight: bold;
 }
 
@@ -1464,11 +1464,11 @@ h1, h2, h3, h4, .app-title {
 }
 
 .board-space .landed-token {
-  width: 2.4cqw;
-  height: 2.4cqw;
-  font-size: 1.35cqw;
-  border: 0.075cqw solid #fff;
-  box-shadow: 0 0.15cqw 0.3cqw rgba(0,0,0,0.4);
+  width: 3.6cqw;
+  height: 3.6cqw;
+  font-size: 2.0cqw;
+  border: 0.11cqw solid #fff;
+  box-shadow: 0 0.22cqw 0.45cqw rgba(0,0,0,0.4);
 }
 
 /* ==========================================================================
