@@ -452,7 +452,7 @@
 
     // Refresh when local storage updates from other tabs
     window.addEventListener("storage", (e) => {
-      if (e.key === "monopoly_session") {
+      if (e.key === "monopoly_companion_session") {
         refreshBoardView();
       }
     });
@@ -484,6 +484,10 @@
         let statusText = "Active";
         if (p.isBankrupt) statusText = "Bankrupt";
         else if (p.inJail) statusText = "In Jail 🔒";
+
+        if (p.getOutOfJailCards > 0) {
+          statusText += ` | 🎟️ x${p.getOutOfJailCards}`;
+        }
 
         item.innerHTML = `
           <div class="player-identity">

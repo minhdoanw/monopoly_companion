@@ -527,6 +527,45 @@
           const space5 = state.properties.find(p => p.id === 5);
           assertEquals(space5.name, "Ga Hà Nội", "Space 5 is Ga Hà Nội");
         }
+      },
+      {
+        name: "Test Chance Card Balance Change Effect",
+        fn: () => {
+          Monopoly.initGame(
+            [{ name: "Alice", token: "token_car" }, { name: "Bob", token: "token_thimble" }],
+            "VN",
+            1500
+          );
+          const state = Monopoly.getState();
+          const player = state.players[0];
+          
+          // Force deck to have card index 5 (Bank Pays Dividend, +50)
+          state.chanceDeck = [5];
+          const initialBalance = player.balance;
+          Monopoly.drawChanceOrChest(player.id, "chance");
+          
+          assertEquals(player.balance, initialBalance + 50, "Player balance should increase by 50");
+        }
+      },
+      {
+        name: "Test Landing on Go to Jail Space",
+        fn: () => {
+          Monopoly.initGame(
+            [{ name: "Alice", token: "token_car" }, { name: "Bob", token: "token_thimble" }],
+            "VN",
+            1500
+          );
+          
+          const state = Monopoly.getState();
+          const player = state.players[0];
+          
+          // Start at space 20 (Free Parking) and roll 10 to land on space 30 (Go to Jail)
+          player.position = 20;
+          Monopoly.rollDice(5, 5); // 5+5 = 10, lands on 30
+          
+          assertEquals(player.position, 10, "Player should be sent directly to jail (space 10)");
+          assertEquals(player.inJail, true, "Player should be in jail");
+        }
       }
     ];
 

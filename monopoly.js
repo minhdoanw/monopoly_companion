@@ -617,18 +617,15 @@ const Monopoly = (() => {
   }
 
   function payToBank(s, player, amount, type, propertyId = null) {
-    player.balance -= amount;
-    s.bank.balance += amount;
+    executeTransaction(player.id, "bank", amount, "CARD_EFFECT", propertyId);
   }
 
   function payFromBank(s, player, amount, type, propertyId = null) {
-    s.bank.balance -= amount;
-    player.balance += amount;
+    executeTransaction("bank", player.id, amount, "CARD_EFFECT", propertyId);
   }
 
   function payPlayerToPlayer(s, sender, receiver, amount, type, propertyId = null) {
-    sender.balance -= amount;
-    receiver.balance += amount;
+    executeTransaction(sender.id, receiver.id, amount, "CARD_EFFECT", propertyId);
   }
 
   // ─── LEDGER LOGGING & EVENT SOURCING ─────────────────────────────────────────
@@ -1003,7 +1000,13 @@ const Monopoly = (() => {
   function checkLandedSpaceAction(player) {
     const prop = getCurrentProperty(player);
     
-    if (prop.type === "go" || prop.type === "parking" || prop.type === "jail" || prop.type === "gotojail") {
+    if (prop.type === "gotojail") {
+      sendToJail(state, player);
+      state.landedActionResolved = true;
+      return;
+    }
+
+    if (prop.type === "go" || prop.type === "parking" || prop.type === "jail") {
       state.landedActionResolved = true;
       return;
     }

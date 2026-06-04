@@ -837,6 +837,11 @@
             </span>`;
         }).join("");
 
+        let jailCardsBadge = "";
+        if (p.getOutOfJailCards > 0) {
+          jailCardsBadge = `<span class="player-status-badge jail-card" title="Get Out of Jail Free Card">🎟️ x${p.getOutOfJailCards}</span>`;
+        }
+
         const card = document.createElement("div");
         card.className = `player-card glass ${isCurrent ? 'active-player-glow' : ''}`;
         card.style.setProperty("--player-color", p.color);
@@ -847,7 +852,10 @@
               <div class="avatar-circle" style="border-color: ${p.color};">${p.token}</div>
               <h3>${p.name}</h3>
             </div>
-            ${statusBadge}
+            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+              ${statusBadge}
+              ${jailCardsBadge}
+            </div>
           </div>
           <div class="player-card-balance">${formattedCash}</div>
           <div class="player-assets">
