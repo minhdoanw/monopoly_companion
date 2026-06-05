@@ -630,8 +630,6 @@ const Monopoly = (() => {
 
   // ─── LEDGER LOGGING & EVENT SOURCING ─────────────────────────────────────────
   function logEvent(type, description) {
-    // We clean history to remove state snapshots in old objects if size becomes a concern,
-    // but a standard game is normally ~200 events, which takes < 500KB.
     const event = {
       id: `evt_${Date.now()}_${Math.floor(Math.random()*1000)}`,
       timestamp: Date.now(),
@@ -652,11 +650,29 @@ const Monopoly = (() => {
 
     // Store in active history
     state.history.push(event);
+
+    // Prune old state snapshots to avoid localStorage limit (QuotaExceededError)
+    // Keep the last 20 snapshots for undoing, but remove older snapshots to keep size < 500KB.
+    const MAX_UNDO_DEPTH = 20;
+    if (state.history.length > MAX_UNDO_DEPTH) {
+      for (let i = 0; i < state.history.length - MAX_UNDO_DEPTH; i++) {
+        if (state.history[i].stateSnapshot !== null) {
+          state.history[i].stateSnapshot = null;
+        }
+      }
+    }
   }
 
   function undoLastEvent() {
     if (state.history.length <= 1) {
       // Setup is at index 0, so we can't undo setup
+      return false;
+    }
+
+    // Get the previous action's snapshot (before removing anything)
+    const prevEventIndex = state.history.length - 2;
+    if (prevEventIndex < 0 || !state.history[prevEventIndex].stateSnapshot) {
+      // Previous snapshot was pruned or doesn't exist
       return false;
     }
 
