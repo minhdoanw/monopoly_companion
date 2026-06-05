@@ -1,4 +1,4 @@
-const CACHE_NAME = 'monopoly-companion-v17';
+const CACHE_NAME = 'monopoly-companion-v18';
 const ASSETS_TO_CACHE = [
   './',
   'index.html',
@@ -11,7 +11,10 @@ const ASSETS_TO_CACHE = [
   'corner_go.png',
   'corner_jail.png',
   'corner_parking.png',
-  'corner_gotojail.png'
+  'corner_gotojail.png',
+  'templates/index.html',
+  'templates/board.html',
+  'templates/style.css'
 ];
 
 // Install Event - Pre-cache static assets
