@@ -1,15 +1,15 @@
-const CACHE_NAME = 'monopoly-companion-v19';
+const CACHE_NAME = 'monopoly-companion-v20';
 const ASSETS_TO_CACHE = [
   './',
   'index.html',
   'board.html',
   'style.css',
   'monopoly.js',
+  'ui.js',
+  'board_ui.js',
   'test.html',
   'manifest.json',
   'icon.svg',
-  'templates/index.html',
-  'templates/board.html',
   'templates/style.css'
 ];
 
@@ -41,41 +41,29 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Fetch Event - Serve from Cache, Fallback to Network
+// Fetch Event - Stale-While-Revalidate Strategy for local/font resources
 self.addEventListener('fetch', event => {
   // Only intercept HTTP/HTTPS requests (avoid chrome-extension://, etc.)
-  if (!event.request.url.startsWith(self.location.origin) && !event.request.url.startsWith('https://fonts.googleapis.com') && !event.request.url.startsWith('https://fonts.gstatic.com')) {
+  if (!event.request.url.startsWith(self.location.origin) && 
+      !event.request.url.startsWith('https://fonts.googleapis.com') && 
+      !event.request.url.startsWith('https://fonts.gstatic.com')) {
     return;
   }
 
   event.respondWith(
-    caches.match(event.request)
-      .then(cachedResponse => {
-        if (cachedResponse) {
-          // Serve from cache immediately
-          return cachedResponse;
-        }
-
-        // Otherwise fetch from network and cache
-        return fetch(event.request)
-          .then(networkResponse => {
-            if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-              // Return response directly if invalid/external
-              return networkResponse;
-            }
-
-            const responseToCache = networkResponse.clone();
-            caches.open(CACHE_NAME)
-              .then(cache => {
-                cache.put(event.request, responseToCache);
-              });
-
-            return networkResponse;
-          })
-          .catch(() => {
-            // Offline failure case
-            console.warn('[Service Worker] Network request failed and no cache hit.');
-          });
-      })
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.match(event.request).then(cachedResponse => {
+        const fetchPromise = fetch(event.request).then(networkResponse => {
+          if (networkResponse && networkResponse.status === 200) {
+            cache.put(event.request, networkResponse.clone());
+          }
+          return networkResponse;
+        }).catch(() => {
+          // Offline/Network fail - ignore and fallback to cache
+        });
+        
+        return cachedResponse || fetchPromise;
+      });
+    })
   );
 });
