@@ -510,35 +510,19 @@ header {
   font-weight: 700;
   text-align: center;
   border: 3px solid var(--text-main);
+  background: var(--panel-bg);
 }
 
 .board-space.corner-space .space-icon {
-  display: none !important;
+  font-size: 2.8cqw;
+  margin-bottom: 0.2cqw;
 }
 
 .board-space.corner-space .space-name {
-  font-size: 1.35cqw;
-  color: #fff;
-  line-height: 1.2;
+  font-size: 1.1cqw;
+  color: var(--text-main);
+  line-height: 1.1;
   text-transform: uppercase;
-  font-weight: 800;
-  text-shadow: 1px 1px 0 #000, 2px 2px 0 #000;
-  padding: 0.5cqw;
-  box-sizing: border-box;
-}
-
-/* Custom premium backgrounds for the 4 corner spaces */
-.board-space.go-corner {
-  background: linear-gradient(180deg, rgba(15, 16, 19, 0.1) 0%, rgba(15, 16, 19, 0.6) 100%), url('../corner_go.png') no-repeat center/cover !important;
-}
-.board-space.jail-corner {
-  background: linear-gradient(180deg, rgba(15, 16, 19, 0.1) 0%, rgba(15, 16, 19, 0.6) 100%), url('../corner_jail.png') no-repeat center/cover !important;
-}
-.board-space.parking-corner {
-  background: linear-gradient(180deg, rgba(15, 16, 19, 0.1) 0%, rgba(15, 16, 19, 0.6) 100%), url('../corner_parking.png') no-repeat center/cover !important;
-}
-.board-space.gotojail-corner {
-  background: linear-gradient(180deg, rgba(15, 16, 19, 0.1) 0%, rgba(15, 16, 19, 0.6) 100%), url('../corner_gotojail.png') no-repeat center/cover !important;
 }
 
 /* Color bar sizes */

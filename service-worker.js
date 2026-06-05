@@ -1,4 +1,4 @@
-const CACHE_NAME = 'monopoly-companion-v18';
+const CACHE_NAME = 'monopoly-companion-v19';
 const ASSETS_TO_CACHE = [
   './',
   'index.html',
@@ -8,10 +8,6 @@ const ASSETS_TO_CACHE = [
   'test.html',
   'manifest.json',
   'icon.svg',
-  'corner_go.png',
-  'corner_jail.png',
-  'corner_parking.png',
-  'corner_gotojail.png',
   'templates/index.html',
   'templates/board.html',
   'templates/style.css'

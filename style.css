@@ -1377,49 +1377,22 @@ h1, h2, h3, h4, .app-title {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  background: rgba(255, 255, 255, 0.02);
   font-weight: 700;
   text-align: center;
   border-color: rgba(255, 255, 255, 0.15);
 }
 
 .board-space.corner-space .space-icon {
-  display: none !important;
+  font-size: 2.8cqw;
+  margin-bottom: 0.2cqw;
 }
 
 .board-space.corner-space .space-name {
-  font-size: 1.35cqw;
+  font-size: 1.1cqw;
   color: var(--text-white);
-  line-height: 1.2;
+  line-height: 1.1;
   text-transform: uppercase;
-  font-weight: 800;
-  text-shadow: 0 0.2cqw 0.4cqw rgba(0, 0, 0, 0.6);
-  padding: 0.5cqw;
-  box-sizing: border-box;
-}
-
-/* Custom premium backgrounds for the 4 corner spaces */
-.board-space.go-corner {
-  background: linear-gradient(180deg, rgba(15, 16, 19, 0.2) 0%, rgba(15, 16, 19, 0.75) 100%), url('corner_go.png') no-repeat center/cover !important;
-  box-shadow: inset 0 0 1.5cqw rgba(45, 201, 136, 0.25) !important;
-  border-color: rgba(45, 201, 136, 0.3) !important;
-}
-
-.board-space.jail-corner {
-  background: linear-gradient(180deg, rgba(15, 16, 19, 0.2) 0%, rgba(15, 16, 19, 0.75) 100%), url('corner_jail.png') no-repeat center/cover !important;
-  box-shadow: inset 0 0 1.5cqw rgba(255, 255, 255, 0.05) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-}
-
-.board-space.parking-corner {
-  background: linear-gradient(180deg, rgba(15, 16, 19, 0.2) 0%, rgba(15, 16, 19, 0.75) 100%), url('corner_parking.png') no-repeat center/cover !important;
-  box-shadow: inset 0 0 1.5cqw rgba(239, 68, 68, 0.2) !important;
-  border-color: rgba(239, 68, 68, 0.3) !important;
-}
-
-.board-space.gotojail-corner {
-  background: linear-gradient(180deg, rgba(15, 16, 19, 0.2) 0%, rgba(15, 16, 19, 0.75) 100%), url('corner_gotojail.png') no-repeat center/cover !important;
-  box-shadow: inset 0 0 1.5cqw rgba(239, 68, 68, 0.3) !important;
-  border-color: rgba(239, 68, 68, 0.35) !important;
 }
 
 /* Color bar sizes */
