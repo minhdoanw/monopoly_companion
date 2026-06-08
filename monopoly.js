@@ -521,6 +521,8 @@ const Monopoly = (() => {
         prop.mortgageValue = layout.mortgageValue;
         prop.ownerId = null;
         prop.isMortgaged = false;
+      } else if (layout.type === "tax") {
+        prop.taxAmount = layout.taxAmount;
       }
       return prop;
     });
@@ -1272,6 +1274,22 @@ const Monopoly = (() => {
     return { houses, hotels };
   }
 
+  function calculateTotalAssets(playerId) {
+    const player = state.players.find(p => p.id === playerId);
+    if (!player) return 0;
+    
+    let total = player.balance;
+    state.properties.forEach(prop => {
+      if (prop.ownerId === playerId) {
+        total += prop.cost || 0;
+        if (prop.houses > 0) {
+          total += prop.houses * (prop.houseCost || 0);
+        }
+      }
+    });
+    return total;
+  }
+
   // ─── PUBLIC API ─────────────────────────────────────────────────────────────
   return {
     EDITIONS,
@@ -1280,6 +1298,7 @@ const Monopoly = (() => {
     CHEST_CARDS,
     getState: () => state,
     initGame,
+    calculateTotalAssets,
     executeTransaction,
     undoLastEvent,
     buyProperty,

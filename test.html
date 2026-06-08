@@ -589,6 +589,50 @@
           assertEquals(player.position, 18, "Player should move to space 18");
           assertEquals(state.dice.rollAgainAllowed, false, "Should not get another turn when escaping jail via doubles");
         }
+      },
+      {
+        name: "Test Income Tax Total Asset Calculation and Luxury Tax Fix",
+        fn: () => {
+          Monopoly.initGame(
+            [{ name: "Alice", token: "token_car" }, { name: "Bob", token: "token_thimble" }],
+            "VN",
+            1500
+          );
+          
+          const state = Monopoly.getState();
+          const aliceId = state.players[0].id;
+          
+          // Verify initial tax amounts are correctly initialized (the bug fix)
+          const incomeTax = state.properties.find(p => p.id === 4);
+          const luxuryTax = state.properties.find(p => p.id === 38);
+          assertEquals(incomeTax.taxAmount, 200, "Income Tax amount is 200");
+          assertEquals(luxuryTax.taxAmount, 100, "Luxury Tax amount is 100");
+          
+          // Verify calculateTotalAssets initially returns only starting cash
+          let assets = Monopoly.calculateTotalAssets(aliceId);
+          assertEquals(assets, 1500, "Initial assets should equal starting cash");
+          
+          // Alice buys property 1 (cost 60, printed in BOARD_LAYOUT)
+          Monopoly.buyProperty(aliceId, 1);
+          assets = Monopoly.calculateTotalAssets(aliceId);
+          // Cash balance is now 1500 - 60 = 1440. Property value is 60. Total assets = 1440 + 60 = 1500
+          assertEquals(assets, 1500, "Total assets should remain 1500 after buying a property (cash converted to deed)");
+          
+          // Alice builds 2 houses on property 1 (house cost is 50)
+          Monopoly.buildHouse(aliceId, 1);
+          Monopoly.buildHouse(aliceId, 1);
+          assets = Monopoly.calculateTotalAssets(aliceId);
+          // Cash balance is now 1440 - 2 * 50 = 1340. 
+          // Property value is 60. Building value is 2 * 50 = 100.
+          // Total assets = 1340 + 60 + 100 = 1500
+          assertEquals(assets, 1500, "Total assets should remain 1500 after building houses (cash converted to buildings)");
+          
+          // Give Alice $500 external cash (from bank transaction)
+          Monopoly.executeTransaction("bank", aliceId, 500, "TRANSFER");
+          assets = Monopoly.calculateTotalAssets(aliceId);
+          // Assets should increase by 500 to 2000
+          assertEquals(assets, 2000, "Total assets should increase by 500 to 2000 after cash infusion");
+        }
       }
     ];
 

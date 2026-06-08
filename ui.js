@@ -391,10 +391,21 @@ function renderTurnController(state) {
         `;
       }
     } else if (prop.type === "tax") {
-      msg = `Landed on <strong>${prop.name}</strong>. Tax due: <strong>${Monopoly.getFormattedAmount(prop.taxAmount || 200)}</strong>.`;
-      buttonsHtml = `
-        <button class="btn btn-danger btn-sm" onclick="payTaxUI('${activePlayer.id}', ${prop.taxAmount || 200})">Pay Tax</button>
-      `;
+      if (prop.id === 4) {
+        const totalAssets = Monopoly.calculateTotalAssets(activePlayer.id);
+        const assetTax = Math.floor(totalAssets * 0.1);
+        const flatTax = prop.taxAmount || 200;
+        msg = `Landed on <strong>${prop.name}</strong>. Total Assets: <strong>${Monopoly.getFormattedAmount(totalAssets)}</strong>. Choose tax payment option:`;
+        buttonsHtml = `
+          <button class="btn btn-danger btn-sm" onclick="payTaxUI('${activePlayer.id}', ${flatTax})">Pay Flat (${Monopoly.getFormattedAmount(flatTax)})</button>
+          <button class="btn btn-danger btn-sm" onclick="payTaxUI('${activePlayer.id}', ${assetTax})">Pay 10% Assets (${Monopoly.getFormattedAmount(assetTax)})</button>
+        `;
+      } else {
+        msg = `Landed on <strong>${prop.name}</strong>. Tax due: <strong>${Monopoly.getFormattedAmount(prop.taxAmount || 200)}</strong>.`;
+        buttonsHtml = `
+          <button class="btn btn-danger btn-sm" onclick="payTaxUI('${activePlayer.id}', ${prop.taxAmount || 200})">Pay Tax</button>
+        `;
+      }
     } else if (prop.type === "chance" || prop.type === "chest") {
       msg = `Landed on <strong>${prop.name}</strong>. Draw card to resolve.`;
       buttonsHtml = `
@@ -942,7 +953,14 @@ function openPropertyModal(propertyId) {
     } else if (prop.type === "chest") {
       desc = `<div style="text-align:center; padding:10px 0; font-size:13px; color:var(--text-main);">📦 <strong>Community Chest Space</strong><br/><br/>Draw a Community Chest card to support your strategy.</div>`;
     } else if (prop.type === "tax") {
-      desc = `<div style="text-align:center; padding:10px 0; font-size:13px; color:var(--text-main);">💸 <strong>${prop.name} Space</strong><br/><br/>You must pay <strong>${Monopoly.getFormattedAmount(prop.taxAmount || 200)}</strong> tax to the Bank.</div>`;
+      if (prop.id === 4) {
+        const totalAssets = Monopoly.calculateTotalAssets(activePlayer.id);
+        const assetTax = Math.floor(totalAssets * 0.1);
+        const flatTax = prop.taxAmount || 200;
+        desc = `<div style="text-align:center; padding:10px 0; font-size:13px; color:var(--text-main);">💸 <strong>${prop.name} Space</strong><br/><br/>Your Total Assets: <strong>${Monopoly.getFormattedAmount(totalAssets)}</strong>.<br/><br/>You must pay either a flat <strong>${Monopoly.getFormattedAmount(flatTax)}</strong> or 10% of assets (<strong>${Monopoly.getFormattedAmount(assetTax)}</strong>) to the Bank.</div>`;
+      } else {
+        desc = `<div style="text-align:center; padding:10px 0; font-size:13px; color:var(--text-main);">💸 <strong>${prop.name} Space</strong><br/><br/>You must pay <strong>${Monopoly.getFormattedAmount(prop.taxAmount || 200)}</strong> tax to the Bank.</div>`;
+      }
     } else if (prop.type === "jail") {
       desc = `<div style="text-align:center; padding:10px 0; font-size:13px; color:var(--text-main);">🔒 <strong>In Jail / Just Visiting</strong><br/><br/>If you are sent here, you are in Jail. Otherwise, you are just visiting. Jail escape fine is $50.</div>`;
     } else if (prop.type === "parking") {
@@ -957,7 +975,19 @@ function openPropertyModal(propertyId) {
 
     if (isLanded) {
       if (prop.type === "tax") {
-        actionPanel.innerHTML = `<button class="btn btn-danger btn-block" onclick="payTaxUI('${activePlayer.id}', ${prop.taxAmount || 200}); closeModal(elModalProperty);">Pay Tax (${Monopoly.getFormattedAmount(prop.taxAmount || 200)})</button>`;
+        if (prop.id === 4) {
+          const totalAssets = Monopoly.calculateTotalAssets(activePlayer.id);
+          const assetTax = Math.floor(totalAssets * 0.1);
+          const flatTax = prop.taxAmount || 200;
+          actionPanel.innerHTML = `
+            <div style="display: flex; gap: 8px; width: 100%;">
+              <button class="btn btn-danger btn-block" style="margin-top:0;" onclick="payTaxUI('${activePlayer.id}', ${flatTax}); closeModal(elModalProperty);">Pay Flat (${Monopoly.getFormattedAmount(flatTax)})</button>
+              <button class="btn btn-danger btn-block" style="margin-top:0;" onclick="payTaxUI('${activePlayer.id}', ${assetTax}); closeModal(elModalProperty);">Pay 10% (${Monopoly.getFormattedAmount(assetTax)})</button>
+            </div>
+          `;
+        } else {
+          actionPanel.innerHTML = `<button class="btn btn-danger btn-block" onclick="payTaxUI('${activePlayer.id}', ${prop.taxAmount || 200}); closeModal(elModalProperty);">Pay Tax (${Monopoly.getFormattedAmount(prop.taxAmount || 200)})</button>`;
+        }
       } else if (prop.type === "chance" || prop.type === "chest") {
         actionPanel.innerHTML = `<button class="btn btn-warning btn-block" onclick="drawCardUI('${prop.type}'); closeModal(elModalProperty);">Draw Card</button>`;
       } else {
