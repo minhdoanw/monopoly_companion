@@ -265,6 +265,25 @@ header {
   box-shadow: 0 4px 0 var(--text-main);
 }
 
+/* Shake animation for rolling */
+@keyframes shakeDice {
+  0% { transform: translate(2px, 1px) rotate(0deg); }
+  10% { transform: translate(-1px, -2px) rotate(-5deg); }
+  20% { transform: translate(-3px, 0px) rotate(5deg); }
+  30% { transform: translate(0px, 2px) rotate(0deg); }
+  40% { transform: translate(1px, -1px) rotate(5deg); }
+  50% { transform: translate(-1px, 2px) rotate(-5deg); }
+  60% { transform: translate(-3px, 1px) rotate(0deg); }
+  70% { transform: translate(2px, 1px) rotate(-5deg); }
+  80% { transform: translate(-1px, -1px) rotate(5deg); }
+  90% { transform: translate(2px, 2px) rotate(0deg); }
+  100% { transform: translate(1px, -2px) rotate(-5deg); }
+}
+
+.die.rolling {
+  animation: shakeDice 0.5s infinite;
+}
+
 .manual-dice-box select {
   font-family: var(--font-family);
   border: 3px solid var(--text-main);
@@ -1327,4 +1346,107 @@ body.spectator-page {
     width: 95vw !important;
     height: 95vw !important;
   }
+}
+
+/* ─── CARD DRAWER & 3D ANIMATIONS ────────────────────────────────────────── */
+.card-draw-modal-content {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  width: auto;
+  max-width: 100%;
+}
+
+.card-flipper-container {
+  perspective: 1000px;
+  width: 280px;
+  height: 380px;
+  margin: 0 auto;
+}
+
+.card-flipper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  cursor: pointer;
+}
+
+.card-flipper.flipped {
+  transform: rotateY(180deg);
+}
+
+.card-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  text-align: center;
+  border: 4px solid #fff;
+}
+
+.card-front-chance {
+  background: linear-gradient(135deg, #ff416c, #ff4b2b);
+  color: var(--text-white);
+}
+
+.card-front-chest {
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  color: var(--text-white);
+}
+
+.card-logo {
+  font-size: 72px;
+  font-weight: 900;
+  text-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.card-type-label {
+  font-family: 'Outfit', sans-serif;
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+
+.card-back {
+  background: #f8fafc;
+  color: #1e293b;
+  transform: rotateY(180deg);
+  justify-content: space-between;
+  border-color: #27272a;
+}
+
+.card-back .card-badge {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 20px;
+  letter-spacing: 1px;
+  color: var(--text-white);
+}
+
+.card-back .card-badge.chance { background: var(--color-danger); }
+.card-back .card-badge.chest { background: var(--color-primary); }
+
+.card-back h3 {
+  color: #0f172a;
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.card-back p {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #334155;
+  flex: 1;
+  display: flex;
+  align-items: center;
 }

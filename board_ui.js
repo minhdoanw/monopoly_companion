@@ -66,17 +66,16 @@ function renderTurnInfo(state) {
 
   const diceFaces = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
   if (state.dice) {
-    if (state.dice.isRolling) {
-      elSpectatorDiceBox.innerHTML = `
-        <div class="spectator-die rolling">🎲</div>
-        <div class="spectator-die rolling">🎲</div>
-      `;
-    } else if (state.dice.values && state.dice.values.length === 2) {
-      elSpectatorDiceBox.innerHTML = `
-        <div class="spectator-die">${diceFaces[state.dice.values[0] - 1] || "🎲"}</div>
-        <div class="spectator-die">${diceFaces[state.dice.values[1] - 1] || "🎲"}</div>
-      `;
-    }
+    const isRolling = state.dice.isRolling;
+    const hasValues = state.dice.values && state.dice.values.length === 2;
+    
+    const val1 = hasValues ? (diceFaces[state.dice.values[0] - 1] || "🎲") : "🎲";
+    const val2 = hasValues ? (diceFaces[state.dice.values[1] - 1] || "🎲") : "🎲";
+
+    elSpectatorDiceBox.innerHTML = `
+      <div class="die ${isRolling ? 'rolling' : ''}">${val1}</div>
+      <div class="die ${isRolling ? 'rolling' : ''}">${val2}</div>
+    `;
   }
 }
 
@@ -415,27 +414,49 @@ elModalSpec.addEventListener("click", (e) => {
   }
 });
 
+let currentDrawnCardKey = null;
+
 function renderDrawnCard(state) {
   const elCardOverlay = document.getElementById("spectator-card-draw-overlay");
-  const elCardFace = document.getElementById("drawn-card-face-spec");
-  const elCardBadge = document.getElementById("drawn-card-badge-spec");
-  const elCardTitle = document.getElementById("drawn-card-title-spec");
-  const elCardDesc = document.getElementById("drawn-card-desc-spec");
+  const elFlipperElement = document.getElementById("card-flipper-element");
+  const elCardFrontType = document.getElementById("card-front-type");
+  const elCardBadge = document.getElementById("drawn-card-badge");
+  const elCardTitle = document.getElementById("drawn-card-title");
+  const elCardDesc = document.getElementById("drawn-card-desc");
 
-  if (!elCardOverlay || !elCardFace) return;
+  if (!elCardOverlay || !elFlipperElement) return;
 
   if (state.activeCard) {
     const card = state.activeCard;
-    const isChance = card.type === "chance";
+    const cardKey = `${card.type}-${card.title}-${card.desc}`;
     
-    elCardBadge.innerText = isChance ? "CHANCE" : "COMMUNITY CHEST";
-    elCardTitle.innerText = card.title;
-    elCardDesc.innerText = card.desc;
-    
-    elCardFace.className = `drawn-card-face-spec ${isChance ? 'chance-card' : 'chest-card'}`;
-    elCardOverlay.classList.add("active");
+    if (currentDrawnCardKey !== cardKey) {
+      currentDrawnCardKey = cardKey;
+      const isChance = card.type === "chance";
+      
+      // Update front face classes & label
+      elCardFrontType.className = `card-face ${isChance ? 'card-front-chance' : 'card-front-chest'}`;
+      elCardFrontType.querySelector(".card-type-label").innerText = isChance ? "CHANCE" : "COMMUNITY CHEST";
+      
+      // Update back face contents & styles
+      elCardBadge.innerText = isChance ? "CHANCE" : "COMMUNITY CHEST";
+      elCardBadge.className = `card-badge ${isChance ? 'chance' : 'chest'}`;
+      elCardTitle.innerText = card.title;
+      elCardDesc.innerText = card.desc;
+      
+      // Reset flipped state and open overlay
+      elFlipperElement.classList.remove("flipped");
+      elCardOverlay.classList.add("active");
+      
+      // Flip the card after overlay animates in
+      setTimeout(() => {
+        elFlipperElement.classList.add("flipped");
+      }, 500);
+    }
   } else {
+    currentDrawnCardKey = null;
     elCardOverlay.classList.remove("active");
+    elFlipperElement.classList.remove("flipped");
   }
 }
 
