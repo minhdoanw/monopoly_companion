@@ -65,11 +65,18 @@ function renderTurnInfo(state) {
   elCurrentPlayerName.style.color = activePlayer.color;
 
   const diceFaces = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
-  if (state.dice && state.dice.values && state.dice.values.length === 2) {
-    elSpectatorDiceBox.innerHTML = `
-      <div class="spectator-die">${diceFaces[state.dice.values[0] - 1] || "🎲"}</div>
-      <div class="spectator-die">${diceFaces[state.dice.values[1] - 1] || "🎲"}</div>
-    `;
+  if (state.dice) {
+    if (state.dice.isRolling) {
+      elSpectatorDiceBox.innerHTML = `
+        <div class="spectator-die rolling">🎲</div>
+        <div class="spectator-die rolling">🎲</div>
+      `;
+    } else if (state.dice.values && state.dice.values.length === 2) {
+      elSpectatorDiceBox.innerHTML = `
+        <div class="spectator-die">${diceFaces[state.dice.values[0] - 1] || "🎲"}</div>
+        <div class="spectator-die">${diceFaces[state.dice.values[1] - 1] || "🎲"}</div>
+      `;
+    }
   }
 }
 

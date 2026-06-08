@@ -426,7 +426,7 @@ const Monopoly = (() => {
     bank: { balance: 20500 },
     properties: [],
     currentPlayerIndex: 0,
-    dice: { values: [1, 1], doublesCount: 0, lastRolled: false, rollAgainAllowed: false },
+    dice: { values: [1, 1], doublesCount: 0, lastRolled: false, rollAgainAllowed: false, isRolling: false },
     landedActionResolved: true,
     chanceDeck: [],
     chestDeck: [],
@@ -963,6 +963,7 @@ const Monopoly = (() => {
     
     state.dice.values = [d1, d2];
     state.dice.lastRolled = true;
+    state.dice.isRolling = false;
     state.activeCard = null;
 
     let jailActionDesc = "";
@@ -1238,6 +1239,11 @@ const Monopoly = (() => {
     saveToLocalStorage();
   }
 
+  function startDiceRollAnimation() {
+    state.dice.isRolling = true;
+    saveToLocalStorage();
+  }
+
   // ─── HELPERS & GETTERS ──────────────────────────────────────────────────────
   function getFormattedAmount(amount) {
     const symbol = EDITIONS[state.edition].currency;
@@ -1293,6 +1299,7 @@ const Monopoly = (() => {
     declareBankruptcy,
     getFormattedAmount,
     clearActiveCard,
+    startDiceRollAnimation,
     saveToLocalStorage,
     loadFromLocalStorage,
     clearLocalStorage

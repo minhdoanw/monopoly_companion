@@ -718,6 +718,7 @@ function updateDiceModeUI() {
 }
 
 elBtnRollDice.addEventListener("click", () => {
+  Monopoly.startDiceRollAnimation();
   const isManual = document.getElementById("dice-mode-manual").checked;
 
   if (isManual) {
