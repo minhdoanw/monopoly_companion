@@ -430,7 +430,8 @@ const Monopoly = (() => {
     landedActionResolved: true,
     chanceDeck: [],
     chestDeck: [],
-    history: []
+    history: [],
+    activeCard: null
   };
 
   // ─── DEEP COPY UTILITY ──────────────────────────────────────────────────────
@@ -962,6 +963,7 @@ const Monopoly = (() => {
     
     state.dice.values = [d1, d2];
     state.dice.lastRolled = true;
+    state.activeCard = null;
 
     let jailActionDesc = "";
 
@@ -1141,6 +1143,7 @@ const Monopoly = (() => {
     state.dice.doublesCount = 0;
     state.dice.rollAgainAllowed = false;
     state.landedActionResolved = true; // Clear resolved state for new turn (must roll to proceed)
+    state.activeCard = null;
 
     const nextPlayer = state.players[state.currentPlayerIndex];
     logEvent("NEXT_TURN", `It is now ${nextPlayer.name}'s turn`);
@@ -1179,6 +1182,11 @@ const Monopoly = (() => {
     }
 
     logEvent("CARD_DRAW", `${player.name} drew ${type.toUpperCase()}: "${card.title}" - ${card.desc}`);
+    state.activeCard = {
+      type: type,
+      title: card.title,
+      desc: card.desc
+    };
     saveToLocalStorage();
 
     return { card, deckLeft: deck.length };
@@ -1223,6 +1231,11 @@ const Monopoly = (() => {
     logEvent("BANKRUPTCY", desc);
     saveToLocalStorage();
     return { success: true };
+  }
+
+  function clearActiveCard() {
+    state.activeCard = null;
+    saveToLocalStorage();
   }
 
   // ─── HELPERS & GETTERS ──────────────────────────────────────────────────────
@@ -1279,6 +1292,7 @@ const Monopoly = (() => {
     drawChanceOrChest,
     declareBankruptcy,
     getFormattedAmount,
+    clearActiveCard,
     saveToLocalStorage,
     loadFromLocalStorage,
     clearLocalStorage

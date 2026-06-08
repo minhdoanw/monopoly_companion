@@ -802,6 +802,7 @@ function drawCardUI(type) {
 
   document.getElementById("btn-close-card-modal").onclick = () => {
     closeModal(elModalCardDraw);
+    Monopoly.clearActiveCard();
     renderAll();
   };
 }

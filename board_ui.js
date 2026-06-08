@@ -44,6 +44,7 @@ function refreshBoardView() {
   renderTurnInfo(state);
   renderPlayers(state, currentEdition);
   renderBoardGrid(state);
+  renderDrawnCard(state);
 }
 
 // Refresh when local storage updates from other tabs
@@ -406,6 +407,30 @@ elModalSpec.addEventListener("click", (e) => {
     closeSpecModal();
   }
 });
+
+function renderDrawnCard(state) {
+  const elCardOverlay = document.getElementById("spectator-card-draw-overlay");
+  const elCardFace = document.getElementById("drawn-card-face-spec");
+  const elCardBadge = document.getElementById("drawn-card-badge-spec");
+  const elCardTitle = document.getElementById("drawn-card-title-spec");
+  const elCardDesc = document.getElementById("drawn-card-desc-spec");
+
+  if (!elCardOverlay || !elCardFace) return;
+
+  if (state.activeCard) {
+    const card = state.activeCard;
+    const isChance = card.type === "chance";
+    
+    elCardBadge.innerText = isChance ? "CHANCE" : "COMMUNITY CHEST";
+    elCardTitle.innerText = card.title;
+    elCardDesc.innerText = card.desc;
+    
+    elCardFace.className = `drawn-card-face-spec ${isChance ? 'chance-card' : 'chest-card'}`;
+    elCardOverlay.classList.add("active");
+  } else {
+    elCardOverlay.classList.remove("active");
+  }
+}
 
 // ─── THEME SYNCHRONIZER ───────────────────────────────────────────────────
 function applyTheme(theme) {
