@@ -1099,6 +1099,7 @@ const Monopoly = (() => {
     player.position = 10; // Jail Space is index 10
     s.dice.doublesCount = 0;
     s.dice.rollAgainAllowed = false;
+    s.landedActionResolved = true;
     logEvent("JAIL", `${player.name} was sent directly to Jail`);
   }
 
